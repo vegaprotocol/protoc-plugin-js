@@ -1,0 +1,19 @@
+{
+  "name": "protoc-plugin-js",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.mjs",
+  "type": "module",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "nanoassert": "^2.0.0",
+    "prettier": "^2.7.1"
+  }
+}
