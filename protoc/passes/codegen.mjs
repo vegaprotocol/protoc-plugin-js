@@ -62,8 +62,7 @@ function messageEncodeFile(root, message) {
     name: path.join(root, 'encode.mjs'),
     content: j`
       ${importLocal('Writer', 'encode/writer.mjs', root)}
-      ${importLocal('* as types', 'encode/types.mjs', root)}
-      ${resolveImports(root, 'encode', message.fields)}
+      ${importTypes(root, 'encode', message.fields)}
 
       export function encode (obj = {}, buf, byteOffset = 0) {
         const writer = new Writer()
@@ -90,11 +89,10 @@ function messageDecodeFile(root, message) {
     name: path.join(root, 'decode.mjs'),
     content: j`
       ${importLocal('reader', 'decode/reader.mjs', root)}
-      ${importLocal('* as types', 'decode/types.mjs', root)}
-      ${resolveImports(root, 'decode', message.fields)}
+      ${importTypes(root, 'decode', message.fields)}
 
       export function decode (buf, byteOffset = 0, byteLength = buf.byteLength) {
-        ${message.fields.map(f => `const ${f.name} = null`)}
+        ${message.fields.map(f => `${isConst(f) ? 'const' : 'let'} ${f.name} = ${defaultValue(f)}`)}
       }
     `
   }
@@ -172,11 +170,15 @@ function enumFile(root, enumt) {
   }
 }
 
-function importLocal(obj, from) {
-  return `import ${obj} from '${path.join(new URL(import.meta.url).pathname, '../..', from)}'`
+function resolveLocal(pkg) {
+  return path.join(new URL(import.meta.url).pathname, '../../..', pkg)
 }
 
-function resolveImports(from, direction, fields) {
+function importLocal(obj, pkg) {
+  return `import ${obj} from '${resolveLocal(pkg)}'`
+}
+
+function importTypes(from, direction, fields) {
   let imports = new Set()
 
   const primitiveTypes = new Set()
@@ -193,5 +195,8 @@ function resolveImports(from, direction, fields) {
     imports.add(`import { ${direction} as ${typeName} } from './${importPath}'`)
   }
 
-  return Array.from(imports.values())
+  return [
+    `import {${Array.from(primitiveTypes.values()).join(', ')}} from '${resolveLocal(direction + '/types.mjs')}'`,
+    ...imports.values()
+  ]
 }
