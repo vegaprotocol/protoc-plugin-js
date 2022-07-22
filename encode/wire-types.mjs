@@ -192,14 +192,16 @@ export const bool = {
 }
 
 export const enumerable = {
-  encode (en, buf = alloc(this, en), offset = 0) {
+  encode(en, buf = alloc(this, en), offset = 0) {
+    assert(en <= enumerable.MAX_VALUE, 'enum value exceeds MAX_VALUE')
     varint.encode(en, buf, offset)
     this.encode.bytes = varint.encode.bytes
     return buf.subarray(offset, offset + this.encode.bytes)
   },
   encodingLength (en) {
     return varint.encodingLength(en)
-  }
+  },
+  MAX_VALUE: (1n << 32n) - 1n
 }
 
 const enc = new TextEncoder()
