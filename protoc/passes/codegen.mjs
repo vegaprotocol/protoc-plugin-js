@@ -76,7 +76,12 @@ function messageEncodeFile(root, message) {
   }
 
   function field(f) {
-    return `if (obj.${f.name}) writer.${f.wireType}(${f.number}, ${f.typeName?.split('.').at(-1) || 'types.' + f.type.toLowerCase() + '.encode'}(obj.${f.name}))`
+    const accessor = `obj.${f.name}`
+    const encoder = f.type === 'message' ? f.typeName.split('.').at(-1) : 'types.' + f.type + '.encode'
+    const writer = f.repeated
+      ? `${accessor}.forEach(v => writer.${f.wireType}(${f.number}, ${encoder}(v)))`
+      : `writer.${f.wireType}(${f.number}, ${encoder}(${accessor}))`
+    return `if (${accessor}) ${writer}`
   }
 }
 
@@ -93,6 +98,42 @@ function messageDecodeFile(root, message) {
       }
     `
   }
+
+  function isConst(f) {
+    // [] is the only "object" we do not overwrite
+    if (f.repeated) return true
+    return false
+  }
+
+  function defaultValue(f) {
+    if (f.optional) return 'null'
+    if (f.repeated) return '[]'
+    switch (f.type) {
+      case 'bool': return 'false'
+      case 'enum': return '0'
+      case 'uint32': return '0'
+      case 'int32': return '0'
+      case 'sint32': return '0'
+      case 'uint64': return '0n'
+      case 'int64': return '0n'
+      case 'sint64': return '0n'
+
+
+      case 'sfixed64': return '0n'
+      case 'fixed64': return '0n'
+      case 'double': return '0'
+
+      case 'sfixed32': return '0'
+      case 'fixed32': return '0'
+      case 'float': return '0'
+
+      case 'string': "''"
+      case 'message': return "{}"
+      case 'bytes': return 'new Uint8Array(0)'
+    }
+  }
+}
+
 }
 
 function enumFile(root, enumt) {
