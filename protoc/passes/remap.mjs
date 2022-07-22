@@ -1,17 +1,17 @@
 /* eslint-disable camelcase */
-
 import assert from 'nanoassert'
-import concatJson from '../utils/concat-json.mjs'
 
-// concatJson(process.stdin, (err, json) => {
-//   if (err) throw err
+/**
+ * In this pass we assert that only features we intend to support are present
+ * and map all the data structures to formats which are easier to process, eg.
+ * remove unused properties, enrich the information on a specific field and
+ * simplify enums
+ */
+export default function (files) {
+  return files.map(file)
+}
 
-//   const remapped = json.protoFile.map(file)
-
-//   process.stdout.write(JSON.stringify(remapped, null, 2))
-// })
-
-export function file ({
+function file ({
   name,
   packageName,
   dependency,
@@ -60,6 +60,8 @@ function fmessageType ({
   assert(extensionRange.length === 0, 'Descriptor.extensionRange unsupported')
   assert(extension.length === 0, 'Descriptor.extension unsupported')
 
+  // We only care about message options in the case where they signal the
+  // message being a Map
   if (options) {
     assert(options.messageSetWireFormat === false, 'Descriptor.options.messageSetWireFormat unsupported')
     assert(options.noStandardDescriptorAccessor === false, 'Descriptor.options.noStandardDescriptorAccessor unsupported')
@@ -103,8 +105,9 @@ function fieldType ({
   const Repeated = labelToString(label) === 'REPEATED'
   const Type = typeToString(type)
   const wireType = typeToWireType(Type)
+  const packed = Repeated && ['varint', 'fixed32', 'fixed64'].includes(wireType)
 
-  assert(!(Repeated && !['string', 'bytes', 'message'].includes(Type)), 'packed fields are currently unsupported')
+  assert(!packed, 'packed fields are currently unsupported')
 
   return {
     name: jsonName,
@@ -112,7 +115,7 @@ function fieldType ({
     type: Type,
     wireType,
     repeated: Repeated,
-    packed: Repeated && ['varint', 'fixed32', 'fixed64'].includes(wireType),
+    packed,
     optional: proto3Optional,
     typeName,
     oneofIndex: oneofIndex

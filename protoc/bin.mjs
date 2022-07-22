@@ -3,8 +3,8 @@ import concat from '../utils/concat.mjs'
 import { decode as CodeGeneratorRequest } from './messages/google/protobuf/compiler/code-generator-request.mjs'
 import * as CodeGeneratorResponse from './messages/google/protobuf/compiler/code-generator-response.mjs'
 import util from 'util'
-import { file as remap } from './passes/remap.mjs'
-import { file as files } from './passes/files.mjs'
+import remap from './passes/remap.mjs'
+import codegen from './passes/codegen.mjs'
 import * as prettier from 'prettier'
 
 concat(process.stdin, (err, buf) => {
@@ -24,7 +24,15 @@ concat(process.stdin, (err, buf) => {
           return value
         }, 2)
       },
-      ...req.protoFile.map(f => files(remap(f))).flat().map(f => ({ name: f.name, content: prettier.format(f.content, { semi: false, parser: "babel" }) }))
+      ...codegen(remap(req.protoFile))
+        .flat()
+        .map(f => ({
+          name: f.name,
+          content: prettier.format(
+            f.content,
+            { semi: false, parser: "babel" }
+          )
+        }))
     ]
   })
 
