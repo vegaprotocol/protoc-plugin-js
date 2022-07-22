@@ -76,8 +76,6 @@ function messageEncodeFile(root, message) {
   }
 
   function field(f) {
-    assert(field.repeated === true ? field.packed === false : true, 'packed, repeated fields not yet supported')
-
     return `if (obj.${f.name}) writer.${f.wireType}(${f.number}, ${f.typeName?.split('.').at(-1) || 'types.' + f.type.toLowerCase() + '.encode'}(obj.${f.name}))`
   }
 }
