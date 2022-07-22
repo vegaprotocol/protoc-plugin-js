@@ -1,55 +1,48 @@
 /* eslint-disable camelcase */
 
 import assert from 'nanoassert'
-import concatJson from '../utils/concat-json.mjs'
 import * as path from 'path'
-import { varint, wireTypes } from '../encode/wire-types.mjs'
-import { default as j } from '../utils/join.mjs'
+import { enumerable } from '../../encode/wire-types.mjs'
+import { default as j } from '../../utils/join.mjs'
 
-// concatJson(process.stdin, (err, json) => {
-//   if (err) throw err
+export default function (files) {
+  return files.map(file)
+}
 
-//   const remapped = json.map(file).flat()
-
-//   process.stdout.write(JSON.stringify(remapped, null, 2))
-// })
-
-export function file({
+function file({
   name,
   packageName,
   dependencies,
   messages,
   enums
 }) {
-  const root = packageName.split('.')
-  root.unshift('.')
+  const packagePath = packageName.replace(/\./g, '/')
 
   return [
-    ...enums.map(e => enumFile(root, e)),
-    ...messages.map(m => messageFile(root, m)).flat()
+    ...enums.map(e => enumFile(packagePath, e)),
+    ...messages.map(m => messageFile(packagePath, m)).flat()
   ].flat()
 }
 
 function messageFile(root, message) {
-  root = [...root, message.name]
+  const messagePath = path.join(root, message.name)
 
-  const encodeFile = messageEncodeFile(root, message)
-  const decodeFile = messageDecodeFile(root, message)
-  const nestedEnums = message.enums.map(e => enumFile(root, e))
-  const nestedMessages = message.messages.map(m => messageFile(root, m))
+  const encodeFile = messageEncodeFile(messagePath, message)
+  const decodeFile = messageDecodeFile(messagePath, message)
+  const nestedEnums = message.enums.map(e => enumFile(messagePath, e))
+  const nestedMessages = message.messages.map(m => messageFile(messagePath, m))
 
-  const rootFileName = root.join('/') + '.mjs'
   const rootFile = {
-    name: rootFileName,
+    name: messagePath + '.mjs',
     content: j`
-      export * from './${path.relative([...root, '..'].join('/'), encodeFile.name)}'
-      export * from './${path.relative([...root, '..'].join('/'), decodeFile.name)}'
+      export * from './${path.relative(root, encodeFile.name)}'
+      export * from './${path.relative(root, decodeFile.name)}'
       ${nestedEnums.map((n, i) =>
-        `export * as ${message.enums[i].name} from './${path.relative([...root, '..'].join('/'), n.name)}'`)
+        `export * as ${message.enums[i].name} from './${path.relative(root, n.name)}'`)
       }
 
       ${nestedMessages.map((n, i) =>
-        `export * as ${message.messages[i].name} from './${path.relative([...root, '..'].join('/'), n[0].name)}'`)
+        `export * as ${message.messages[i].name} from './${path.relative(root, n[0].name)}'`)
       }
     `
   }
@@ -66,11 +59,11 @@ function messageFile(root, message) {
 
 function messageEncodeFile(root, message) {
   return {
-    name: [...root, 'encode.mjs'].join('/'),
+    name: path.join(root, 'encode.mjs'),
     content: j`
-      ${importLocal('Writer', 'encode/writer.mjs', root.join('/'))}
-      ${importLocal('* as types', 'encode/types.mjs', root.join('/'))}
-      ${resolveImports(root.join('/'), 'encode', message.fields)}
+      ${importLocal('Writer', 'encode/writer.mjs', root)}
+      ${importLocal('* as types', 'encode/types.mjs', root)}
+      ${resolveImports(root, 'encode', message.fields)}
 
       export function encode (obj = {}, buf, byteOffset = 0) {
         const writer = new Writer()
@@ -91,11 +84,11 @@ function messageEncodeFile(root, message) {
 
 function messageDecodeFile(root, message) {
   return {
-    name: [...root, 'decode.mjs'].join('/'),
+    name: path.join(root, 'decode.mjs'),
     content: j`
-      ${importLocal('reader', 'decode/reader.mjs', root.join('/'))}
-      ${importLocal('* as types', 'decode/types.mjs', root.join('/'))}
-      ${resolveImports(root.join('/'), 'decode', message.fields)}
+      ${importLocal('reader', 'decode/reader.mjs', root)}
+      ${importLocal('* as types', 'decode/types.mjs', root)}
+      ${resolveImports(root, 'decode', message.fields)}
 
       export function decode (buf, byteOffset = 0, byteLength = buf.byteLength) {
         ${message.fields.map(f => `const ${f.name} = null`)}
@@ -105,28 +98,32 @@ function messageDecodeFile(root, message) {
 }
 
 function enumFile(root, enumt) {
+  // Optimisation: "Dense" (string sequences without gaps) can be encoded as an array instead of map
+  // Optimisation: Longest common prefix can be removed and deferred to the string step
   // Optimisation: encodingLength for groups of values, eg [0, 1, 2, 3], [1000, 1001, 1002]
   let maxValue = Math.max(...enumt.values.map(v => v.value))
-  const encodingLength = varint.encodingLength(maxValue)
-  const maxEncodingLength = varint.encodingLength(0xffff_ffff)
+  const encodingLength = enumerable.encodingLength(maxValue)
+  const maxEncodingLength = enumerable.encodingLength(enumerable.MAX_VALUE)
   const stringsMap = JSON.stringify(enumt.values.map(v => [v.value, v.name]), null, 2)
 
   return {
-    name: [...root, enumt.name + '.mjs'].join('/'),
+    name: path.join(root, enumt.name + '.mjs'),
     content: `
+      ${importLocal(`{ enumerable }`, 'encode/types.mjs')}
+      ${importLocal(`{ int32 as decodeEnumerable }`, 'decode/types.mjs')}
       const strings = new Map(${stringsMap})
 
       export function encode (value, buf, byteOffset = 0) {
-        return int32.encode(value, buf, byteOffset )
+        return enumerable.encode(value, buf, byteOffset )
       }
 
       export function encodingLength (value) {
         if (value <= ${maxValue}) return ${encodingLength}
-        return ${maxEncodingLength} // sint32 max value in case of unknown value
+        return ${maxEncodingLength} // enumerable max value in case of unknown value
       }
 
-      export function decode (buf, byteOffset = 0, byteLength = buf.byteLength) {
-        return decodeInt32(buf, byteOffset, byteLength)
+      export function decode (varint) {
+        return decodeEnumerable(varint)
       }
 
       export function string (value) {
