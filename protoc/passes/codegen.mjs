@@ -5,22 +5,45 @@ import * as path from 'path'
 import { enumerable } from '../../encode/wire-types.mjs'
 import { default as j } from '../../utils/join.mjs'
 
-export default function (files) {
-  return files.map(file)
+export default function (packages) {
+  return Array.from(packages.values(), p => packageFile('', p))
 }
 
-function file({
+function packageFile(root, {
   name,
-  packageName,
-  dependencies,
   messages,
-  enums
+  enums,
+  packages
 }) {
-  const packagePath = packageName.replace(/\./g, '/')
+  const packagePath = path.join(root, name)
+
+  const nestedEnums = enums.map(e => enumFile(packagePath, e))
+  const nestedMessages = messages.map(m => messageFile(packagePath, m))
+  const nestedPackages = Array.from(packages.values(), p => packageFile(packagePath, p))
+
+  const rootFile = {
+    name: (packagePath === '.' ? 'index' : packagePath) + '.mjs',
+    identifier: name,
+    content: j`
+      ${nestedPackages.map((n, i) =>
+        `export * as ${n[0].identifier} from './${path.relative(root, n[0].name)}'`)
+      }
+
+      ${nestedEnums.map((n, i) =>
+        `export * as ${n.identifier} from './${path.relative(root, n.name)}'`)
+      }
+
+      ${nestedMessages.map((n, i) =>
+        `export * as ${n[0].identifier} from './${path.relative(root, n[0].name)}'`)
+      }
+    `
+  }
 
   return [
-    ...enums.map(e => enumFile(packagePath, e)),
-    ...messages.map(m => messageFile(packagePath, m)).flat()
+    rootFile,
+    ...nestedPackages.flat(),
+    ...nestedEnums.flat(),
+    ...nestedMessages
   ].flat()
 }
 
@@ -34,15 +57,16 @@ function messageFile(root, message) {
 
   const rootFile = {
     name: messagePath + '.mjs',
+    identifier: message.name,
     content: j`
       export * from './${path.relative(root, encodeFile.name)}'
       export * from './${path.relative(root, decodeFile.name)}'
-      ${nestedEnums.map((n, i) =>
-        `export * as ${message.enums[i].name} from './${path.relative(root, n.name)}'`)
+      ${nestedEnums.map(n =>
+        `export * as ${n.identifier} from './${path.relative(root, n.name)}'`)
       }
 
-      ${nestedMessages.map((n, i) =>
-        `export * as ${message.messages[i].name} from './${path.relative(root, n[0].name)}'`)
+      ${nestedMessages.map(n =>
+        `export * as ${n[0].identifier} from './${path.relative(root, n[0].name)}'`)
       }
     `
   }
@@ -145,7 +169,7 @@ function enumFile(root, enumt) {
 
   return {
     name: path.join(root, enumt.name + '.mjs'),
-    content: `
+    identifier: enumt.name,
       ${importLocal(`{ enumerable }`, 'encode/types.mjs')}
       ${importLocal(`{ int32 as decodeEnumerable }`, 'decode/types.mjs')}
       const strings = new Map(${stringsMap})

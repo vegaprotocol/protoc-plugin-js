@@ -5,6 +5,7 @@ import * as CodeGeneratorResponse from './messages/google/protobuf/compiler/code
 import util from 'util'
 import remap from './passes/remap.mjs'
 import codegen from './passes/codegen.mjs'
+import recursive from './passes/recursive.mjs'
 import * as prettier from 'prettier'
 
 concat(process.stdin, (err, buf) => {
@@ -14,7 +15,6 @@ concat(process.stdin, (err, buf) => {
   }
 
   const req = CodeGeneratorRequest(buf)
-  console.error(req.parameter)
 
   const res = CodeGeneratorResponse.encode({
     file: [
@@ -24,7 +24,7 @@ concat(process.stdin, (err, buf) => {
           return value
         }, 2)
       },
-      ...codegen(remap(req.protoFile))
+      ...codegen(recursive(remap(req.protoFile)))
         .flat()
         .map(f => ({
           name: f.name,
