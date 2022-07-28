@@ -7,7 +7,7 @@ export function encode({ name, content, insertionPoint, generatedCodeInfo }) {
   assert(generatedCodeInfo == null, 'generatedCodeInfo unsupported')
 
   const writer = new Writer()
-  if (name) writer.push(t.tag.encode(1, t.wireTypes.BYTES), t.string.encode(name))
-  if (content) writer.push(t.tag.encode(15, t.wireTypes.BYTES), t.string.encode(content))
+  if (name) writer.bytes(1, name, t.string)
+  if (content) writer.bytes(15, content, t.string)
   return writer.concat()
 }

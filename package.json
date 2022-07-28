@@ -15,5 +15,8 @@
   "dependencies": {
     "nanoassert": "^2.0.0",
     "prettier": "^2.7.1"
+  },
+  "devDependencies": {
+    "tape": "^5.5.3"
   }
 }

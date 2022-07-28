@@ -1,78 +1,118 @@
-import { varint, tag, bytes, wireTypes } from './wire-types.mjs'
+import { varint, tag, bytes, uint64, uint32, wireTypes } from './wire-types.mjs'
+
+const PAGE_SIZE = 256
 
 export default class Writer {
-  constructor () {
-    this.buf = []
+  constructor (prealloc = PAGE_SIZE) {
+    this.buf = [new Uint8Array(prealloc)]
+    this.offset = 0
+  }
+
+  get pages() {
+    return this.buf.length
   }
 
   alloc(bytes) {
-    // TODO This can use preallocated data
-    const buf = new Uint8Array(bytes)
-    this.push(buf)
+    const tail = this.buf.at(-1)
+    if (tail.byteLength - this.offset >= bytes) {
+      this.offset += bytes
+      return tail.subarray(this.offset - bytes)
+    }
+
+    this._trim()
+    this.offset = bytes
+    const buf = new Uint8Array(Math.max(bytes, PAGE_SIZE))
+    this.buf.push(buf)
     return buf
   }
 
-  push (...b) {
-    this.buf.push(...b)
+  _trim() {
+    if (this.offset === 0) {
+      this.buf.pop() // remove the item that is unused
+    }
+    else this.buf.push(this.buf.pop().subarray(0, this.offset))
   }
 
-  varint(fieldNumber, value) {
+  append(...b) {
+    this._trim()
+    this.buf.push(...b)
+    let tail = this.buf.at(-1)
+    this.offset = tail.byteLength
+
+    return tail
+  }
+
+  varint(fieldNumber, value, codec = varint) {
     if (!value) return null
+
     const buf = this.alloc(
       tag.encodingLength(fieldNumber, wireTypes.VARINT) +
-      varint.encodingLength(value)
+      codec.encodingLength(value)
     )
 
     tag.encode(fieldNumber, wireTypes.VARINT, buf)
-    varint.encode(value, buf, tag.encode.bytes)
+    codec.encode(value, buf, tag.encode.bytes)
   }
 
-  bytes(fieldNumber, value) {
+  bytes(fieldNumber, value, codec = bytes) {
     if (!value) return null
+
     const buf = this.alloc(
       tag.encodingLength(fieldNumber, wireTypes.BYTES) +
-      bytes.encodingLength(value)
+      codec.encodingLength(value)
     )
 
     tag.encode(fieldNumber, wireTypes.BYTES, buf)
-    bytes.encode(value, buf, tag.encode.bytes)
+    codec.encode(value, buf, tag.encode.bytes)
   }
 
-  fixed64(fieldNumber, value) {
+  fixed64(fieldNumber, value, codec = uint64) {
     if (!value) return null
     const buf = this.alloc(
       tag.encodingLength(fieldNumber, wireTypes.FIXED64) +
-      this.fixed64.encodingLength(value)
+      codec.encodingLength(value)
     )
 
     tag.encode(fieldNumber, wireTypes.FIXED64, buf)
-    this.fixed64.encode(value, buf, tag.encode.bytes)
+    codec.encode(value, buf, tag.encode.bytes)
   }
 
-  fixed32(fieldNumber, value) {
+  fixed32(fieldNumber, value, codec = uint32) {
     if (!value) return null
     const buf = this.alloc(
       tag.encodingLength(fieldNumber, wireTypes.FIXED32) +
-      this.fixed32.encodingLength(value)
+      codec.encodingLength(value)
     )
 
     tag.encode(fieldNumber, wireTypes.FIXED32, buf)
-    this.fixed32.encode(value, buf, tag.encode.bytes)
+    codec.encode(value, buf, tag.encode.bytes)
+  }
+
+  encodingLength () {
+    let size = 0
+    for (let i = 0; i < this.buf.length - 1; i++) {
+      size += this.buf[i].byteLength
+    }
+
+    size += this.offset
+
+    return size
   }
 
   // TODO take buf, byteOffset and write into if given
-  concat() {
-    const size = this.buf.reduce((s, b) => s + b.byteLength, 0)
-    if (size === 0) return null
-    const concat = new Uint8Array(size)
+  concat(buf, byteOffset = 0) {
+    this._trim()
+    let size = this.encodingLength()
 
-    for (let i = 0, offset = 0; i < this.buf.length; i++) {
+    if (buf == null) buf = new Uint8Array(size)
+
+    for (let i = 0, offset = byteOffset; i < this.buf.length; i++) {
       const b = this.buf[i]
-      concat.set(b, offset)
+      buf.set(b, offset)
       offset += b.byteLength
     }
 
-    return concat
+    return buf
   }
 }
 
