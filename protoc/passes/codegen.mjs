@@ -204,9 +204,12 @@ function enumFile(root, enumt) {
   return {
     name: path.join(root, enumt.name + '.mjs'),
     identifier: enumt.name,
+    content: j`
       ${importLocal(`{ enumerable }`, 'encode/types.mjs')}
       ${importLocal(`{ int32 as decodeEnumerable }`, 'decode/types.mjs')}
       const strings = new Map(${stringsMap})
+
+      ${enumt.values.map(v => `export const ${v.name} = ${v.value}`)}
 
       export function encode (value, buf, byteOffset = 0) {
         return enumerable.encode(value, buf, byteOffset )
