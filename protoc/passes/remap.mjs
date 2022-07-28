@@ -13,7 +13,7 @@ export default function (files) {
 
 function file ({
   name,
-  packageName,
+  packageName = '',
   dependency,
   messageType,
   enumType,
