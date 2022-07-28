@@ -90,7 +90,7 @@ function messageEncodeFile(root, message) {
 
       export function encode (obj = {}, buf, byteOffset = 0) {
         const writer = new Writer()
-        ${message.fields.map(field)}
+        ${fields(message)}
         return writer.concat(buf, byteOffset)
       }
 
@@ -98,13 +98,28 @@ function messageEncodeFile(root, message) {
     `
   }
 
-  function field(f) {
-    const accessor = `obj.${f.name}`
-    const encoder = f.type === 'message' ? f.typeName.split('.').at(-1) : 'types.' + f.type + '.encode'
-    const writer = f.repeated
-      ? `${accessor}.forEach(v => writer.${f.wireType}(${f.number}, ${encoder}(v)))`
-      : `writer.${f.wireType}(${f.number}, ${encoder}(${accessor}))`
+  function fields(message) {
+    const grouped = groupOneofs(message)
+
+    let res = []
+    for (const [key, fields] of grouped) {
+      const hasKey = key !== ''
+      const accessorPath = hasKey ? '_o' : 'obj'
+      res.push(j`
+        ${hasKey ? `if(obj.${key}) { const _o = obj.${key}; ` : ''}
+        ${fields.map(field => {
+          const accessor = `${accessorPath}.${field.name}`
+          const encoder = field.type === 'message' || field.type === 'enumerable' ? field.messageType : field.type + '.encode'
+          const writer = field.repeated
+            ? `${accessor}.forEach(v => writer.${field.wireType}(${field.number}, ${encoder}(v)))`
+            : `writer.${field.wireType}(${field.number}, ${encoder}(${accessor}))`
     return `if (${accessor}) ${writer}`
+        })}
+        ${hasKey ? '}' : ''}
+      `)
+    }
+
+    return res
   }
 }
 
@@ -156,6 +171,25 @@ function messageDecodeFile(root, message) {
   }
 }
 
+function groupOneofs(message) {
+  if (message.oneofs.length == 0) return new Map([['', message.fields]])
+
+  const groups = new Map()
+  groups.set('', [])
+
+  for (const field of message.fields) {
+    if (field.oneofIndex == null) {
+      groups.set('', groups.get('').concat(field))
+      continue
+    }
+
+    const oneofName = message.oneofs[field.oneofIndex]
+    const group = groups.get(oneofName) ?? []
+    group.push(field)
+    groups.set(oneofName, group)
+  }
+
+  return groups
 }
 
 function enumFile(root, enumt) {
