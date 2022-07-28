@@ -132,7 +132,7 @@ function messageDecodeFile(root, message) {
     if (f.repeated) return '[]'
     switch (f.type) {
       case 'bool': return 'false'
-      case 'enum': return '0'
+      case 'enumerable': return '0'
       case 'uint32': return '0'
       case 'int32': return '0'
       case 'sint32': return '0'
@@ -212,15 +212,15 @@ function importTypes(from, direction, fields) {
       primitiveTypes.add(field.type)
       continue
     }
-    const typeName = field.typeName.split('.').at(-1)
-    const typePath = '.' + field.typeName.replace(/\./g, '/') + (field.type === 'enum' ? '' : '/' + direction) + '.mjs'
+
+    const typePath = '.' + field.typeName.replace(/\./g, '/') + (field.type === 'enumerable' ? '' : '/' + direction) + '.mjs'
     const importPath = path.relative(from, typePath)
 
-    imports.add(`import { ${direction} as ${typeName} } from './${importPath}'`)
+    imports.add(`import { ${direction} as ${field.messageType} } from './${importPath}'`)
   }
 
   return [
-    `import {${Array.from(primitiveTypes.values()).join(', ')}} from '${resolveLocal(direction + '/types.mjs')}'`,
-    ...imports.values()
+    `import {${[...primitiveTypes].join(', ')}} from '${resolveLocal(direction + '/types.mjs')}'`,
+    ...imports
   ]
 }

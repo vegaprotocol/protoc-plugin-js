@@ -109,6 +109,8 @@ function fieldType ({
 
   assert(!packed, 'packed fields are currently unsupported')
 
+  const messageType = typeName?.split('.').at(-1)
+
   return {
     name: jsonName,
     number,
@@ -118,6 +120,7 @@ function fieldType ({
     packed,
     optional: proto3Optional,
     typeName,
+    messageType,
     oneofIndex: oneofIndex
   }
 }
@@ -152,7 +155,7 @@ function typeToString (number) {
 
     case 12: return 'bytes'
     case 13: return 'uint32'
-    case 14: return 'enum'
+    case 14: return 'enumerable'
     case 15: return 'sfixed32'
     case 16: return 'sfixed64'
     case 17: return 'sint32'
@@ -165,7 +168,7 @@ function typeToString (number) {
 function typeToWireType(type) {
   switch (type) {
     case 'bool':
-    case 'enum':
+    case 'enumerable':
     case 'uint32':
     case 'int32':
     case 'sint32':
