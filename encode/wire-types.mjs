@@ -11,10 +11,10 @@ export const varint = {
   encode (
     int,
     buf = alloc(this, int),
-    offset = 0
+    byteOffset = 0
   ) {
     assert(int <= varint.MAX_VALUE, 'int exceeds MAX_VALUE')
-    let o = offset
+    let o = byteOffset
     let n = BigInt(int)
 
     while (n >= 128n) {
@@ -24,15 +24,15 @@ export const varint = {
 
     buf[o++] = Number(n)
 
-    this.encode.bytes = o - offset
-    return buf.subarray(offset, o)
+    this.encode.bytes = o - byteOffset
+    return buf.subarray(byteOffset, o)
   },
-  encodeOversize (int, len, buf, offset = 0) {
+  encodeOversize (int, len, buf, byteOffset = 0) {
     assert(int <= varint.MAX_VALUE, 'int exceeds MAX_VALUE')
     assert(len >= this.encodingLength(int), 'len does not fit int')
-    assert(buf.byteLength - offset >= len, 'buf does not fit len')
-    let o = offset
-    const end = offset + len - 1
+    assert(buf.byteLength - byteOffset >= len, 'buf does not fit len')
+    let o = byteOffset
+    const end = byteOffset + len - 1
 
     let n = BigInt(int)
 
@@ -43,8 +43,8 @@ export const varint = {
 
     buf[o++] = Number(n)
 
-    this.encodeOversize.bytes = o - offset
-    return buf.subarray(offset, o)
+    this.encodeOversize.bytes = o - byteOffset
+    return buf.subarray(byteOffset, o)
   },
   encodingLength (int) {
     assert(int <= varint.MAX_VALUE, 'int exceeds MAX_VALUE')
@@ -56,14 +56,14 @@ export const varint = {
 }
 
 export const bytes = {
-  encode (src, buf = alloc(this, src), offset = 0) {
-    let o = offset
+  encode (src, buf = alloc(this, src), byteOffset = 0) {
+    let o = byteOffset
     varint.encode(src.byteLength, buf, o)
     o += varint.encode.bytes
     buf.set(src, o)
     o += src.byteLength
-    this.encode.bytes = o - offset
-    return buf.subarray(offset, o)
+    this.encode.bytes = o - byteOffset
+    return buf.subarray(byteOffset, o)
   },
   encodingLength (src) {
     return varint.encodingLength(src.byteLength) + src.byteLength
@@ -75,14 +75,14 @@ export const tag = {
     fieldNumber,
     wireType,
     buf = alloc(this, fieldNumber),
-    offset = 0
+    byteOffset = 0
   ) {
     assert(fieldNumber > 0, 'fieldNumber must be greater than 0')
     assert(fieldNumber <= tag.MAX_VALUE, 'fieldNumber exceeds MAX_VALUE')
     const int = BigInt.asUintN(32, BigInt(fieldNumber)) << 3n | BigInt(wireType)
-    varint.encode(int, buf, offset)
+    varint.encode(int, buf, byteOffset)
     this.encode.bytes = varint.encode.bytes
-    return buf.subarray(offset, offset + this.encode.bytes)
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
   },
   encodingLength (fieldNumber) {
     assert(fieldNumber > 0, 'fieldNumber must be greater than 0')
@@ -94,12 +94,12 @@ export const tag = {
 }
 
 export const string = {
-  encode(str, buf = alloc(this, str), offset = 0) {
+  encode(str, buf = alloc(this, str), byteOffset = 0) {
     assert(typeof str === 'string')
     const src = utf8.decode(str)
-    bytes.encode(src, buf, offset)
+    bytes.encode(src, buf, byteOffset)
     this.encode.bytes = bytes.encode.bytes
-    return buf.subarray(offset, offset + this.encode.bytes)
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
   },
   encodingLength (str) {
     const len = [...str].length
@@ -109,11 +109,11 @@ export const string = {
 }
 
 export const uint64 = {
-  encode (int, buf = alloc(this, int), offset = 0) {
+  encode (int, buf = alloc(this, int), byteOffset = 0) {
     const bigint = BigInt(int)
-    varint.encode(BigInt.asUintN(64, bigint), buf, offset)
+    varint.encode(BigInt.asUintN(64, bigint), buf, byteOffset)
     this.encode.bytes = varint.encode.bytes
-    return buf.subarray(offset, offset + this.encode.bytes)
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
   },
   encodingLength (int) {
     return varint.encodingLength(int)
@@ -121,11 +121,11 @@ export const uint64 = {
 }
 
 export const int64 = {
-  encode (int, buf = alloc(this, int), offset = 0) {
+  encode (int, buf = alloc(this, int), byteOffset = 0) {
     const bigint = BigInt(int)
-    varint.encode(BigInt.asIntN(64, bigint), buf, offset)
+    varint.encode(BigInt.asIntN(64, bigint), buf, byteOffset)
     this.encode.bytes = varint.encode.bytes
-    return buf.subarray(offset, offset + this.encode.bytes)
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
   },
   encodingLength (int) {
     return varint.encodingLength(int)
@@ -133,11 +133,11 @@ export const int64 = {
 }
 
 export const sint64 = {
-  encode (int, buf = alloc(this, int), offset = 0) {
+  encode (int, buf = alloc(this, int), byteOffset = 0) {
     const bigint = BigInt(int)
-    varint.encode(BigInt.asIntN(64, (bigint << 1n) ^ (bigint >> 63)), buf, offset)
+    varint.encode(BigInt.asIntN(64, (bigint << 1n) ^ (bigint >> 63)), buf, byteOffset)
     this.encode.bytes = varint.encode.bytes
-    return buf.subarray(offset, offset + this.encode.bytes)
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
   },
   encodingLength (int) {
     return varint.encodingLength(int)
@@ -145,11 +145,11 @@ export const sint64 = {
 }
 
 export const uint32 = {
-  encode (int, buf = alloc(this, int), offset = 0) {
+  encode (int, buf = alloc(this, int), byteOffset = 0) {
     const bigint = BigInt(int)
-    varint.encode(BigInt.asUintN(32, bigint), buf, offset)
+    varint.encode(BigInt.asUintN(32, bigint), buf, byteOffset)
     this.encode.bytes = varint.encode.bytes
-    return buf.subarray(offset, offset + this.encode.bytes)
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
   },
   encodingLength (int) {
     return varint.encodingLength(int)
@@ -157,11 +157,11 @@ export const uint32 = {
 }
 
 export const int32 = {
-  encode (int, buf = alloc(this, int), offset = 0) {
+  encode (int, buf = alloc(this, int), byteOffset = 0) {
     const bigint = BigInt(int)
-    varint.encode(BigInt.asIntN(32, bigint), buf, offset)
+    varint.encode(BigInt.asIntN(32, bigint), buf, byteOffset)
     this.encode.bytes = varint.encode.bytes
-    return buf.subarray(offset, offset + this.encode.bytes)
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
   },
   encodingLength (int) {
     return varint.encodingLength(int)
@@ -169,11 +169,11 @@ export const int32 = {
 }
 
 export const sint32 = {
-  encode (int, buf = alloc(this, int), offset = 0) {
+  encode (int, buf = alloc(this, int), byteOffset = 0) {
     const bigint = BigInt(int)
-    varint.encode(BigInt.asIntN(32, (bigint << 1n) ^ (bigint >> 31)), buf, offset)
+    varint.encode(BigInt.asIntN(32, (bigint << 1n) ^ (bigint >> 31)), buf, byteOffset)
     this.encode.bytes = varint.encode.bytes
-    return buf.subarray(offset, offset + this.encode.bytes)
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
   },
   encodingLength (int) {
     return varint.encodingLength(int)
@@ -181,22 +181,48 @@ export const sint32 = {
 }
 
 export const bool = {
-  encode (val, buf = alloc(this), offset = 0) {
-    varint.encode(val === true ? 1 : 0, buf, offset)
+  encode (val, buf = alloc(this), byteOffset = 0) {
+    varint.encode(val === true ? 1 : 0, buf, byteOffset)
     this.encode.bytes = varint.encode.bytes
-    return buf.subarray(offset, offset + this.encode.bytes)
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
   },
   encodingLength () {
     return 1
   }
 }
 
+export const double = {
+  encode (val, buf = alloc(this), byteOffset = 0) {
+    _view(buf).setFloat64(val)
+    this.encode.bytes = 8
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
+  },
+  encodingLength () {
+    return 8
+  }
+}
+
+export const float = {
+  encode (val, buf = alloc(this), byteOffset = 0) {
+    _view(buf).setFloat32(val)
+    this.encode.bytes = 4
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
+  },
+  encodingLength () {
+    return 4
+  }
+}
+
+function _view (bytes) {
+  return new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+}
+
 export const enumerable = {
-  encode(en, buf = alloc(this, en), offset = 0) {
+  encode(en, buf = alloc(this, en), byteOffset = 0) {
     assert(en <= enumerable.MAX_VALUE, 'enum value exceeds MAX_VALUE')
-    varint.encode(en, buf, offset)
+    varint.encode(en, buf, byteOffset)
     this.encode.bytes = varint.encode.bytes
-    return buf.subarray(offset, offset + this.encode.bytes)
+    return buf.subarray(byteOffset, byteOffset + this.encode.bytes)
   },
   encodingLength (en) {
     return varint.encodingLength(en)
