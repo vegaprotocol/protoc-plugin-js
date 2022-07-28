@@ -60,6 +60,7 @@ export default class Writer {
     this.fixed32.encode(value, buf, tag.encode.bytes)
   }
 
+  // TODO take buf, byteOffset and write into if given
   concat() {
     const size = this.buf.reduce((s, b) => s + b.byteLength, 0)
     if (size === 0) return null

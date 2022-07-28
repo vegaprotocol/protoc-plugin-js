@@ -67,7 +67,7 @@ function messageEncodeFile(root, message) {
       export function encode (obj = {}, buf, byteOffset = 0) {
         const writer = new Writer()
         ${message.fields.map(field)}
-        return writer.concat()
+        return writer.concat(buf, byteOffset)
       }
 
       export function encodingLength (obj) {}
