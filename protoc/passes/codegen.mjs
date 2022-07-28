@@ -105,19 +105,33 @@ function messageEncodeFile(root, message) {
 
     let res = []
     for (const [key, fields] of grouped) {
-      const hasKey = key !== ''
-      const accessorPath = hasKey ? '_o' : 'obj'
+      const hasOneofKey = key !== ''
+      const accessorPath = hasOneofKey ? '_o' : 'obj'
+
       res.push(j`
-        ${hasKey ? `if(obj.${key}) { const _o = obj.${key}; ` : ''}
+        ${hasOneofKey ? `if(obj.${key}) { const _o = obj.${key}; ` : ''}
         ${fields.map(field => {
           const accessor = `${accessorPath}.${field.name}`
-          const encoder = field.type === 'message' || field.type === 'enumerable' ? field.messageType : field.type + '.encode'
-          const writer = field.repeated
-            ? `${accessor}.forEach(v => writer.${field.wireType}(${field.number}, ${encoder}(v)))`
-            : `writer.${field.wireType}(${field.number}, ${encoder}(${accessor}))`
+          const codec = field.messageType ?? field.type
+          const isMessage = field.type === 'message'
+          const isRepeated = field.repeated === true
+          const elementAccessor = isRepeated ? 'v' : accessor
+
+          const writerMethod = `writer.${field.wireType}`
+          const writerArgs = [
+            field.number,
+            isMessage ? field.messageType + `.encode(${elementAccessor})` : elementAccessor
+          ]
+
+          if (!isMessage) writerArgs.push(codec)
+
+
+          const writer = isRepeated
+            ? `${accessor}.forEach(${elementAccessor} => ${writerMethod}(${writerArgs.join()}))`
+            : `${writerMethod}(${writerArgs.join()})`
     return `if (${accessor}) ${writer}`
         })}
-        ${hasKey ? '}' : ''}
+        ${hasOneofKey ? '}' : ''}
       `)
     }
 
@@ -255,7 +269,7 @@ function importTypes(from, direction, fields) {
     const typePath = '.' + field.typeName.replace(/\./g, '/') + (field.type === 'enumerable' ? '' : '/' + direction) + '.mjs'
     const importPath = path.relative(from, typePath)
 
-    imports.add(`import { ${direction} as ${field.messageType} } from './${importPath}'`)
+    imports.add(`import * as ${field.messageType} from './${importPath}'`)
   }
 
   return [
