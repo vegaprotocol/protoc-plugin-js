@@ -94,7 +94,9 @@ function messageEncodeFile(root, message) {
         return writer.concat(buf, byteOffset)
       }
 
-      export function encodingLength (obj) {}
+      export function encodingLength (obj) {
+        throw new Error('Unimplemented')
+      }
     `
   }
 
