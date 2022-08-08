@@ -7,3 +7,8 @@
 ### Encoding
 
 ### Decoding
+
+
+## LICENSE
+
+[MIT](LICENSE)

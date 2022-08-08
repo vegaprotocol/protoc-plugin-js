@@ -1,8 +1,7 @@
 {
   "name": "protoc-plugin-js",
   "version": "0.0.1",
-  "description": "",
-  "main": "index.mjs",
+  "description": "`protoc` plugin generating minimal JS codecs with typings and a focus on small bundle size",
   "type": "module",
   "directories": {
     "test": "test"
@@ -10,8 +9,12 @@
   "scripts": {
     "test": "true"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Emil Bay <emil@vega.xyz>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/vegaprotocol/protoc-plugin-js/issues"
+  },
+  "homepage": "https://github.com/vegaprotocol/protoc-plugin-js#readme",
   "dependencies": {
     "nanoassert": "^2.0.0",
     "prettier": "^2.7.1",
