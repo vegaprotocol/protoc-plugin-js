@@ -100,6 +100,24 @@ function messageEncodeFile(root, message) {
     `
   }
 
+  /**
+   * An example to help digest the below; fields can be set in a number of ways that relate
+   * both to how protobufs are encoded and how they should be presented in JS
+   *
+   * Oneof fields are nested under their field name eg. `inputData` has a `oneof command` which becomes
+   *
+   * ```
+   * // Non-strict conditional since all falsy values happend to coincide with default values in protos
+   * // and defaults should not be encoded on the wire. Only exception is repeated elements, where we
+   * // encode the accessor as `field?.length` such that empty lists are not encoded
+   * if (obj.command) {
+   *   // alias to help the minifier compress
+   *   const _o = obj.command
+   *   // Again, loose accessor
+   *   if (_o.transfer) writer.bytes(1012, Transfer.encode(_o.transfer))
+   * }
+   * ```
+   */
   function fields(message) {
     const grouped = groupOneofs(message)
 
@@ -259,7 +277,12 @@ function importTypes(from, direction, fields) {
       continue
     }
 
+    // typeName is eg `vega.commands.v1.OracleSubmission`,
+    // which we turn into `./vega/commands/v1/OracleSubmission`
+    // enumerables we combine encoding and decoding in a single file, while
+    // messages are split into a decode and encode part
     const typePath = '.' + field.typeName.replace(/\./g, '/') + (field.type === 'enumerable' ? '' : '/' + direction) + '.mjs'
+
     const importPath = path.relative(from, typePath)
 
     imports.add(`import * as ${field.messageType} from './${importPath}'`)
