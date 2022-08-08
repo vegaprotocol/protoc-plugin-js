@@ -4,5 +4,5 @@ mkdir -p "$SCRIPT_DIR/build"
 protoc \
   --plugin=protoc-gen-js="$SCRIPT_DIR/../protoc/bin.mjs" \
   --js_out="$SCRIPT_DIR/./build" \
-  -I "$SCRIPT_DIR/../../protos2/sources" \
+  -I "$SCRIPT_DIR/../../vega/protos/sources" \
   vega/commands/v1/transaction.proto
