@@ -147,7 +147,7 @@ function messageEncodeFile(root, message) {
           const writer = isRepeated
             ? `${accessor}.forEach(${elementAccessor} => ${writerMethod}(${writerArgs.join()}))`
             : `${writerMethod}(${writerArgs.join()})`
-    return `if (${accessor}) ${writer}`
+          return `if (${isRepeated ? accessor + '?.length' : accessor}) ${writer}`
         })}
         ${hasOneofKey ? '}' : ''}
       `)
