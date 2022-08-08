@@ -85,7 +85,7 @@ function messageEncodeFile(root, message) {
   return {
     name: path.join(root, 'encode.mjs'),
     content: j`
-      ${importLocal('Writer', 'encode/writer.mjs', root)}
+      import Writer from 'protobuf-codec/encode/writer.mjs'
       ${importTypes(root, 'encode', message.fields)}
 
       export function encode (obj = {}, buf, byteOffset = 0) {
@@ -143,7 +143,7 @@ function messageDecodeFile(root, message) {
   return {
     name: path.join(root, 'decode.mjs'),
     content: j`
-      ${importLocal('reader', 'decode/reader.mjs', root)}
+      import reader from 'protobuf-codec/decode/reader.mjs'
       ${importTypes(root, 'decode', message.fields)}
 
       export function decode (buf, byteOffset = 0, byteLength = buf.byteLength) {
@@ -221,8 +221,9 @@ function enumFile(root, enumt) {
     name: path.join(root, enumt.name + '.mjs'),
     identifier: enumt.name,
     content: j`
-      ${importLocal(`{ enumerable }`, 'encode/types.mjs')}
-      ${importLocal(`{ int32 as decodeEnumerable }`, 'decode/types.mjs')}
+      import { enumerable } from 'protobuf-codec/encode/types.mjs'
+      import { int32 as decodeEnumerable } from 'protobuf-codec/decode/types.mjs'
+
       const strings = new Map(${stringsMap})
 
       ${enumt.values.map(v => `export const ${v.name} = ${v.value}`)}
@@ -247,14 +248,6 @@ function enumFile(root, enumt) {
   }
 }
 
-function resolveLocal(pkg) {
-  return path.join(new URL(import.meta.url).pathname, '../../..', pkg)
-}
-
-function importLocal(obj, pkg) {
-  return `import ${obj} from '${resolveLocal(pkg)}'`
-}
-
 function importTypes(from, direction, fields) {
   let imports = new Set()
 
@@ -273,7 +266,7 @@ function importTypes(from, direction, fields) {
   }
 
   return [
-    `import {${[...primitiveTypes].join(', ')}} from '${resolveLocal(direction + '/types.mjs')}'`,
+    `import {${[...primitiveTypes].join(', ')}} from 'protobuf-codec/${direction}/types.mjs'`,
     ...imports
   ]
 }
