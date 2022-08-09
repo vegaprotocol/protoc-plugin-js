@@ -1,5 +1,5 @@
-import { int32 as decodeInt32 } from '../../../../../decode/types.mjs'
-import { int32 } from '../../../../../encode/types.mjs'
+import { int32 as decodeInt32 } from 'protobuf-codec/decode/types.mjs'
+import { int32 } from 'protobuf-codec/encode/types.mjs'
 
 const strings = new Map([
   [1, 'LABEL_OPTIONAL'],

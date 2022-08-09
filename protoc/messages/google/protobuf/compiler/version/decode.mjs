@@ -1,5 +1,5 @@
-import * as types from '../../../../../../decode/types.mjs'
-import reader from '../../../../../../decode/reader.mjs'
+import * as types from 'protobuf-codec/decode/types.mjs'
+import reader from 'protobuf-codec/decode/reader.mjs'
 
 /**
  * The version number of protocol compiler.

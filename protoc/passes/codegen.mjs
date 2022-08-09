@@ -2,7 +2,7 @@
 
 import assert from 'nanoassert'
 import * as path from 'path'
-import { enumerable } from '../../encode/wire-types.mjs'
+import { enumerable } from 'protobuf-codec/encode/wire-types.mjs'
 import { default as j } from '../../utils/join.mjs'
 
 export default function (packages) {

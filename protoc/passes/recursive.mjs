@@ -1,5 +1,3 @@
-import util from 'util'
-
 export default function recurse(files) {
   return files.reduce((pkg, file) => {
     let toplevel = pkg.get('')

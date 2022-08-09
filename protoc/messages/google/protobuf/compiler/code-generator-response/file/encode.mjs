@@ -1,5 +1,5 @@
-import * as t from "../../../../../../../encode/wire-types.mjs"
-import Writer from "../../../../../../../encode/writer.mjs"
+import * as t from "protobuf-codec/encode/wire-types.mjs"
+import Writer from "protobuf-codec/encode/writer.mjs"
 import assert from "nanoassert"
 
 export function encode({ name, content, insertionPoint, generatedCodeInfo }) {
