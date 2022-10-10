@@ -178,6 +178,7 @@ function messageDecodeFile(root, message) {
   }
 
   function defaultValue(f) {
+    if (f.oneofIndex != null) return 'null'
     if (f.optional) return 'null'
     if (f.repeated) return '[]'
     switch (f.type) {
@@ -199,8 +200,8 @@ function messageDecodeFile(root, message) {
       case 'fixed32': return '0'
       case 'float': return '0'
 
-      case 'string': "''"
-      case 'message': return "{}"
+      case 'string': return "''"
+      case 'message': return '{}'
       case 'bytes': return 'new Uint8Array(0)'
     }
   }
