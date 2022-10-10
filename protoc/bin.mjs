@@ -29,7 +29,7 @@ concat(process.stdin, (err, buf) => {
           name: f.name,
           content: prettier.format(
             f.content,
-            { semi: false, parser: "babel" }
+            { semi: false, parser: f.type === 'javascript' ? 'babel' : 'typescript' }
           )
         }))
     ]

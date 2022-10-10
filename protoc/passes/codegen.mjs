@@ -26,6 +26,7 @@ function packageFile(root, {
   const rootFile = {
     name: (packagePath === '.' ? 'index' : packagePath) + EXTENSION,
     identifier: name,
+    type: 'javascript',
     content: j`
       ${nestedPackages.map((n, i) =>
         `export * as ${n[0].identifier} from './${path.relative(root, n[0].name)}'`)
@@ -60,6 +61,7 @@ function messageFile(root, message) {
   const rootFile = {
     name: messagePath + EXTENSION,
     identifier: message.name,
+    type: 'javascript',
     content: j`
       export * from './${path.relative(root, encodeFile.name)}'
       export * from './${path.relative(root, decodeFile.name)}'
@@ -86,6 +88,7 @@ function messageFile(root, message) {
 function messageEncodeFile(root, message) {
   return {
     name: path.join(root, 'encode' + EXTENSION),
+    type: 'javascript',
     content: j`
       import Writer from 'protobuf-codec/encode/writer'
       ${importTypes(root, 'encode', message.fields)}
@@ -162,6 +165,7 @@ function messageEncodeFile(root, message) {
 function messageDecodeFile(root, message) {
   return {
     name: path.join(root, 'decode' + EXTENSION),
+    type: 'javascript',
     content: j`
       import reader from 'protobuf-codec/decode/reader'
       ${importTypes(root, 'decode', message.fields)}
@@ -241,6 +245,7 @@ function enumFile(root, enumt) {
   return {
     name: path.join(root, enumt.name + EXTENSION),
     identifier: enumt.name,
+    type: 'javascript',
     content: j`
       import { enumerable } from 'protobuf-codec/encode/types'
       import { int32 as decodeEnumerable } from 'protobuf-codec/decode/types'
