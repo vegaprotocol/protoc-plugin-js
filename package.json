@@ -4,7 +4,7 @@
   "description": "`protoc` plugin generating minimal JS codecs with typings and a focus on small bundle size",
   "type": "module",
   "bin": {
-    "protoc-plugin-js": "./protoc/bin.mjs"
+    "protoc-plugin-js": "./protoc/bin.js"
   },
   "directories": {
     "test": "test"

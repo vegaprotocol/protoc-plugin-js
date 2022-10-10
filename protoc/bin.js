@@ -4,6 +4,7 @@ import { decode as CodeGeneratorRequest } from './messages/google/protobuf/compi
 import * as CodeGeneratorResponse from './messages/google/protobuf/compiler/code-generator-response.js'
 import util from 'util'
 import remap from './passes/remap.js'
+import codegen from './passes/codegen.js'
 import recursive from './passes/recursive.js'
 import * as prettier from 'prettier'
 
