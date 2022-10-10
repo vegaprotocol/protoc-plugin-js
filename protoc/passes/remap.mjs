@@ -118,7 +118,7 @@ function fieldType ({
     wireType,
     repeated: Repeated,
     packed,
-    optional: proto3Optional,
+    optional: proto3Optional ?? false,
     typeName,
     messageType,
     oneofIndex: oneofIndex
