@@ -70,14 +70,14 @@ function fmessageType ({
     map = !!options.mapEntry
   }
 
-  return {
+  return normaliseProto3Optional({
     name,
     map,
     oneofs: oneofDecl.map(oneofType),
     enums: enumType.map(fenumType),
     messages: nestedType.map(fmessageType),
     fields: field.map(fieldType)
-  }
+  })
 }
 
 function oneofType ({ name, options }) {
@@ -123,6 +123,45 @@ function fieldType ({
     messageType,
     oneofIndex: oneofIndex
   }
+}
+
+/**
+ * So the protoc compiler "unrolls" `proto3` optionals as a `oneof`,
+ * eg `optional int foo = 1` becomes `oneof _foo { int foo = 1; }`,
+ * which is undesireable in our JS/TS bindings, hence we remove this.
+ * However that requires readjusting potential other `oneof`s that might
+ * be part of the same message.
+ *
+ * This does not impact wire-level encoding, but is purely a API level
+ * construct which impacts how the field is represented
+ */
+function normaliseProto3Optional(msg) {
+  // To make things easier, let's treat oneofs as a set
+  const oneofs = new Set(msg.oneofs)
+
+  // To make the oneofs position independent we assign their unique name
+  // instead of index
+  for (const field of msg.fields) {
+    if (field.oneofIndex == null) continue
+    field.oneofName = msg.oneofs[field.oneofIndex]
+  }
+
+  // Remove oneof remains from proto3 optionals
+  for (const field of msg.fields) {
+    if (field.optional !== true) continue
+    oneofs.delete(field.oneofName)
+    field.oneofIndex = null
+    field.oneofName = null
+  }
+
+  // Reconstruct the position dependent properties
+  msg.oneofs = Array.from(oneofs.values())
+  for (const field of msg.fields) {
+    if (field.oneofIndex == null) continue
+    field.oneofIndex = msg.oneofs.indexOf(field.oneofName)
+  }
+
+  return msg
 }
 
 function labelToString (number) {
