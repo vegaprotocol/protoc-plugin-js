@@ -2,8 +2,7 @@
 
 import assert from 'nanoassert'
 import * as path from 'path'
-import { enumerable } from 'protobuf-codec/encode/wire-types.mjs'
-import { default as j } from '../../utils/join.mjs'
+import { default as j } from '../../utils/join.js'
 
 export default function (packages) {
   return Array.from(packages.values(), p => packageFile('', p))
