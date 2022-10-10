@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package extended;
+
+import "core.proto";
+
+message Test {
+  uint64 my_int = 1;
+  oneof either {
+    string my_string = 2;
+    bytes my_bytes = 3;
+    core.Test my_msg = 4;
+  }
+  optional string opts = 5;
+}

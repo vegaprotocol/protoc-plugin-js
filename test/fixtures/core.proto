@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package core;
+
+message Test {
+  uint64 my_int = 1;
+  oneof either {
+    string my_string = 2;
+    bytes my_bytes = 3;
+  }
+}
