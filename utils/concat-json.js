@@ -1,4 +1,4 @@
-import concat from './concat.mjs'
+import concat from './concat.js'
 
 export default function (stream, cb) {
   return concat(stream, function (err, data) {
