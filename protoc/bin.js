@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import concat from '../utils/concat.mjs'
+import concat from '../utils/concat.js'
 import { decode as CodeGeneratorRequest } from './messages/google/protobuf/compiler/code-generator-request.js'
 import * as CodeGeneratorResponse from './messages/google/protobuf/compiler/code-generator-response.js'
 import util from 'util'
