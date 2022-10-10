@@ -240,7 +240,7 @@ function enumFile(root, enumt) {
   let maxValue = Math.max(...enumt.values.map(v => v.value))
   const encodingLength = enumerable.encodingLength(maxValue)
   const maxEncodingLength = enumerable.encodingLength(enumerable.MAX_VALUE)
-  const stringsMap = JSON.stringify(enumt.values.map(v => [v.value, v.name]), null, 2)
+  const stringsMap = JSON.stringify(enumt.values.flatMap(v => [[v.value, v.name], [v.name, v.value]]), null, 2)
 
   return {
     name: path.join(root, enumt.name + EXTENSION),
@@ -255,16 +255,25 @@ function enumFile(root, enumt) {
       ${enumt.values.map(v => `export const ${v.name} = ${v.value}`)}
 
       export function encode (value, buf, byteOffset = 0) {
-        return enumerable.encode(value, buf, byteOffset )
+        if (typeof value === 'string') {
+          const int = string(value)
+          if (int == null) throw new Error(\`\${value} is not a valid value for ${enumt.name}\`)
+          return encode(int, buf, byteOffset)
+        }
+
+        return enumerable.encode(value, buf, byteOffset)
       }
 
       export function encodingLength (value) {
         if (value <= ${maxValue}) return ${encodingLength}
-        return ${maxEncodingLength} // enumerable max value in case of unknown value
+
+        // enumerable max value in case of unknown value
+        return ${maxEncodingLength}
       }
 
       export function decode (varint) {
-        return decodeEnumerable(varint)
+        const int = decodeEnumerable(varint)
+        return string(int) ?? int
       }
 
       export function string (value) {
