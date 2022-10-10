@@ -33,7 +33,7 @@ function packageFile(root, {
       }
 
       ${nestedEnums.map((n, i) =>
-        `export * as ${n.identifier} from './${path.relative(root, n.name)}'`)
+        `export * as ${n[0].identifier} from './${path.relative(root, n[0].name)}'`)
       }
 
       ${nestedMessages.map((n, i) =>
@@ -66,7 +66,7 @@ function messageFile(root, message) {
       export * from './${path.relative(root, encodeFile.name)}'
       export * from './${path.relative(root, decodeFile.name)}'
       ${nestedEnums.map(n =>
-        `export * as ${n.identifier} from './${path.relative(root, n.name)}'`)
+        `export * as ${n[0].identifier} from './${path.relative(root, n[0].name)}'`)
       }
 
       ${nestedMessages.map(n =>
@@ -327,7 +327,7 @@ function enumFile(root, enumt) {
   const maxEncodingLength = enumerable.encodingLength(enumerable.MAX_VALUE)
   const stringsMap = JSON.stringify(enumt.values.flatMap(v => [[v.value, v.name], [v.name, v.value]]), null, 2)
 
-  return {
+  return [{
     name: path.join(root, enumt.name + EXTENSION),
     identifier: enumt.name,
     type: 'javascript',
@@ -365,7 +365,23 @@ function enumFile(root, enumt) {
         return strings.get(value)
       }
     `
-  }
+  }, {
+    name: path.join(root, enumt.name + '.d.ts'),
+    identifier: enumt.name + '_typings',
+    type: 'type-definition',
+    content: j`
+      ${enumt.values.map(v => `export const ${v.name}: ${v.value};`)}
+      export type ${enumt.name} = ${enumt.values.flatMap(v => [quote(v.name), 'typeof ' + v.name]).join('|')}
+      export function encode(value: ${enumt.name}, buf: Uint8Array, byteOffset?: number): Uint8Array;
+      export function encodingLength(value: ${enumt.name}): number;
+      export function decode(varint: bigint): ${enumt.values.map(v => quote(v.name)).concat('number').join('|')};
+      export function string(value: ${enumt.values.map(v => v.value).join('|')}): ${enumt.values.map(v => quote(v.name)).join('|')};
+    `
+  }]
+}
+
+function quote(str) {
+  return `'${str}'`
 }
 
 function importTypes(from, direction, fields) {
