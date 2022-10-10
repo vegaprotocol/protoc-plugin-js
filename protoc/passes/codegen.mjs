@@ -2,6 +2,7 @@
 
 import assert from 'nanoassert'
 import * as path from 'path'
+import { enumerable } from 'protobuf-codec/encode/wire-types'
 import { default as j } from '../../utils/join.js'
 
 const EXTENSION = '.js'
@@ -86,7 +87,7 @@ function messageEncodeFile(root, message) {
   return {
     name: path.join(root, 'encode' + EXTENSION),
     content: j`
-      import Writer from 'protobuf-codec/encode/writer.js'
+      import Writer from 'protobuf-codec/encode/writer'
       ${importTypes(root, 'encode', message.fields)}
 
       export function encode (obj = {}, buf, byteOffset = 0) {
@@ -122,7 +123,7 @@ function messageEncodeFile(root, message) {
   function fields(message) {
     const grouped = groupOneofs(message)
 
-    let res = []
+    const res = []
     for (const [key, fields] of grouped) {
       const hasOneofKey = key !== ''
       const accessorPath = hasOneofKey ? '_o' : 'obj'
