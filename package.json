@@ -21,7 +21,7 @@
   "dependencies": {
     "nanoassert": "^2.0.0",
     "prettier": "^2.7.1",
-    "protobuf-codec": "^1.0.1"
+    "protobuf-codec": "^1.0.4"
   },
   "devDependencies": {
     "tape": "^5.5.3"

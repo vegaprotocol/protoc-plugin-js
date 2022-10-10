@@ -1,7 +1,7 @@
-import * as types from 'protobuf-codec/decode/types.mjs'
-import reader from 'protobuf-codec/decode/reader.mjs'
-import { decode as Type } from './type.mjs'
-import { decode as Label } from './label.mjs'
+import * as types from 'protobuf-codec/decode/types.js'
+import reader from 'protobuf-codec/decode/reader.js'
+import { decode as Type } from './type.js'
+import { decode as Label } from './label.js'
 
 export function decode(
   buf,

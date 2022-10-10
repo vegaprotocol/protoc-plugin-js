@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import concat from '../utils/concat.mjs'
-import { decode as CodeGeneratorRequest } from './messages/google/protobuf/compiler/code-generator-request.mjs'
-import * as CodeGeneratorResponse from './messages/google/protobuf/compiler/code-generator-response.mjs'
+import { decode as CodeGeneratorRequest } from './messages/google/protobuf/compiler/code-generator-request.js'
+import * as CodeGeneratorResponse from './messages/google/protobuf/compiler/code-generator-response.js'
 import util from 'util'
 import remap from './passes/remap.mjs'
 import codegen from './passes/codegen.mjs'

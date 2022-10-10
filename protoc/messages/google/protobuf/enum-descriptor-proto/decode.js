@@ -1,6 +1,6 @@
-import * as types from 'protobuf-codec/decode/types.mjs'
-import reader from 'protobuf-codec/decode/reader.mjs'
-import { decode as EnumValueDescriptorProto } from '../enum-value-descriptor-proto/decode.mjs'
+import * as types from 'protobuf-codec/decode/types.js'
+import reader from 'protobuf-codec/decode/reader.js'
+import { decode as EnumValueDescriptorProto } from '../enum-value-descriptor-proto/decode.js'
 
 export function decode(
   buf,

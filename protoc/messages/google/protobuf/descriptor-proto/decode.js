@@ -1,9 +1,9 @@
-import * as types from 'protobuf-codec/decode/types.mjs'
-import reader from 'protobuf-codec/decode/reader.mjs'
-import { decode as EnumDescriptorProto } from '../enum-descriptor-proto/decode.mjs'
-import { decode as FieldDescriptorProto } from '../field-descriptor-proto/decode.mjs'
-import { decode as OneofDescriptorProto } from '../oneof-descriptor-proto/decode.mjs'
-import { decode as MessageOptions } from '../message-options/decode.mjs'
+import * as types from 'protobuf-codec/decode/types.js'
+import reader from 'protobuf-codec/decode/reader.js'
+import { decode as EnumDescriptorProto } from '../enum-descriptor-proto/decode.js'
+import { decode as FieldDescriptorProto } from '../field-descriptor-proto/decode.js'
+import { decode as OneofDescriptorProto } from '../oneof-descriptor-proto/decode.js'
+import { decode as MessageOptions } from '../message-options/decode.js'
 export function decode(
   buf,
   byteOffset = 0,
