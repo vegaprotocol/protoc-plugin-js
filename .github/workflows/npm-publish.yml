@@ -15,7 +15,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18.x
-      - run: npm ci
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm install
       - run: npm test
       - run: npm publish
         env:
