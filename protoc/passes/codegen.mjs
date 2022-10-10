@@ -4,6 +4,8 @@ import assert from 'nanoassert'
 import * as path from 'path'
 import { default as j } from '../../utils/join.js'
 
+const EXTENSION = '.js'
+
 export default function (packages) {
   return Array.from(packages.values(), p => packageFile('', p))
 }
@@ -21,7 +23,7 @@ function packageFile(root, {
   const nestedPackages = Array.from(packages.values(), p => packageFile(packagePath, p))
 
   const rootFile = {
-    name: (packagePath === '.' ? 'index' : packagePath) + '.mjs',
+    name: (packagePath === '.' ? 'index' : packagePath) + EXTENSION,
     identifier: name,
     content: j`
       ${nestedPackages.map((n, i) =>
@@ -55,7 +57,7 @@ function messageFile(root, message) {
   const nestedMessages = message.messages.map(m => messageFile(messagePath, m))
 
   const rootFile = {
-    name: messagePath + '.mjs',
+    name: messagePath + EXTENSION,
     identifier: message.name,
     content: j`
       export * from './${path.relative(root, encodeFile.name)}'
@@ -82,9 +84,9 @@ function messageFile(root, message) {
 
 function messageEncodeFile(root, message) {
   return {
-    name: path.join(root, 'encode.mjs'),
+    name: path.join(root, 'encode' + EXTENSION),
     content: j`
-      import Writer from 'protobuf-codec/encode/writer.mjs'
+      import Writer from 'protobuf-codec/encode/writer.js'
       ${importTypes(root, 'encode', message.fields)}
 
       export function encode (obj = {}, buf, byteOffset = 0) {
@@ -158,9 +160,9 @@ function messageEncodeFile(root, message) {
 
 function messageDecodeFile(root, message) {
   return {
-    name: path.join(root, 'decode.mjs'),
+    name: path.join(root, 'decode' + EXTENSION),
     content: j`
-      import reader from 'protobuf-codec/decode/reader.mjs'
+      import reader from 'protobuf-codec/decode/reader'
       ${importTypes(root, 'decode', message.fields)}
 
       export function decode (buf, byteOffset = 0, byteLength = buf.byteLength) {
@@ -235,11 +237,11 @@ function enumFile(root, enumt) {
   const stringsMap = JSON.stringify(enumt.values.map(v => [v.value, v.name]), null, 2)
 
   return {
-    name: path.join(root, enumt.name + '.mjs'),
+    name: path.join(root, enumt.name + EXTENSION),
     identifier: enumt.name,
     content: j`
-      import { enumerable } from 'protobuf-codec/encode/types.mjs'
-      import { int32 as decodeEnumerable } from 'protobuf-codec/decode/types.mjs'
+      import { enumerable } from 'protobuf-codec/encode/types'
+      import { int32 as decodeEnumerable } from 'protobuf-codec/decode/types'
 
       const strings = new Map(${stringsMap})
 
@@ -280,7 +282,7 @@ function importTypes(from, direction, fields) {
     // which we turn into `./vega/commands/v1/OracleSubmission`
     // enumerables we combine encoding and decoding in a single file, while
     // messages are split into a decode and encode part
-    const typePath = '.' + field.typeName.replace(/\./g, '/') + (field.type === 'enumerable' ? '' : '/' + direction) + '.mjs'
+    const typePath = '.' + field.typeName.replace(/\./g, '/') + (field.type === 'enumerable' ? '' : '/' + direction) + EXTENSION
 
     const importPath = path.relative(from, typePath)
 
@@ -288,7 +290,7 @@ function importTypes(from, direction, fields) {
   }
 
   return [
-    `import {${[...primitiveTypes].join(', ')}} from 'protobuf-codec/${direction}/types.mjs'`,
+    `import {${[...primitiveTypes].join(', ')}} from 'protobuf-codec/${direction}/types'`,
     ...imports
   ]
 }
