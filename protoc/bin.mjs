@@ -16,6 +16,7 @@ concat(process.stdin, (err, buf) => {
   const req = CodeGeneratorRequest(buf)
 
   const res = CodeGeneratorResponse.encode({
+    supportedFeatures: 1,
     file: [
       {
         name: 'messages.json', content: JSON.stringify(req, (key, value) => {

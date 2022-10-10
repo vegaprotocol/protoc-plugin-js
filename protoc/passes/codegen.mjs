@@ -171,9 +171,94 @@ function messageDecodeFile(root, message) {
       ${importTypes(root, 'decode', message.fields)}
 
       export function decode (buf, byteOffset = 0, byteLength = buf.byteLength) {
-        ${message.fields.map(f => `${isConst(f) ? 'const' : 'let'} ${f.name} = ${defaultValue(f)}`)}
+        ${initials()}
+        ${assignments()}
+        ${returnValue()}
       }
     `
+  }
+
+  /**
+   * We keep all fields as variables so minifiers can make the names much smaller,
+   * and then at the end of the decode function we assign them to a object with
+   * the proper field names
+   *
+   * Add all variable initialisers:
+   * 1. Determine if the field is reassignable
+   * 2. Add the default value
+   *
+   * We do this in two steps:
+   * 1. First we add all fields
+   * 2. Then we add all oneof fields
+   */
+  function initials() {
+    const res = []
+
+    for (const f of message.fields) {
+      if (f.oneofIndex != null) continue
+      res.push(`${isConst(f) ? 'const' : 'let'} ${f.name} = ${defaultValue(f)}`)
+    }
+
+    for (const f of message.oneofs) {
+      res.push(`let ${f} = null`)
+    }
+
+    return res
+  }
+
+  /**
+   * Assignment is done in a decoding loop over the binary message and switching on the field number.
+   *
+   * The variables we assign into are called "slots" and how the value is represented is called "container".
+   *
+   * Slot is either directly the field name or the oneof name it is part of
+   * Container is either directly the primitive value or a wrapper object for oneofs
+   *
+   */
+  function assignments() {
+    const res = []
+
+    for (const f of message.fields) {
+      const isOneof = f.oneofIndex != null
+      const isNestedMessage = f.messageType != null
+
+      // For primitive data types the API is eg `string(data)` while nested messages
+      // have eg `NestedMessage.decode(data)`
+      const decoder = (isNestedMessage ? f.messageType + '.decode' : f.type) + '(data)'
+
+      // For oneofs we have multiple fields sharing the same variable (slot)
+      const slot = isOneof ? message.oneofs[f.oneofIndex] : f.name
+
+      // Oneofs are nested objects like `oneofName = {field: value}`
+      const container = isOneof ? `{${f.name}: ${decoder}}` : decoder
+
+      res.push(`case ${f.number}:
+        ${slot}${f.repeated ? `.push(${container})` : `= ${container}`}
+        break
+      `)
+    }
+
+    return j`for (const [field, { data }] of reader(buf, byteOffset, byteLength)) {
+          switch (field) {
+            ${res}
+          }
+        }`
+  }
+
+  // `{ variables }` return.
+  function returnValue() {
+    const res = []
+
+    for (const f of message.fields) {
+      if (f.oneofIndex != null) continue
+      res.push(f.name)
+    }
+
+    for (const f of message.oneofs) {
+      res.push(f)
+    }
+
+    return `return {${res.join(',')}}`
   }
 
   function isConst(f) {
