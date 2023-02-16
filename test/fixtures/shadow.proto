@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package fixtures;
+
+message Shadow {
+  int32 int32 = 1;
+  bytes data = 2;
+  string field = 3;
+  int32 encode = 4;
+  int32 decode = 5;
+
+  map<string, Nested> map = 6;
+}
+
+message Nested {
+  string msg = 1;
+}

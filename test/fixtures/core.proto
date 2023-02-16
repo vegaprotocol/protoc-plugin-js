@@ -1,11 +1,19 @@
 syntax = "proto3";
 
-package core;
+package fixtures.core;
+
+enum Enum {
+  TENUM_UNSPECIFIED = 0;
+  TENUM_SPECIFIED = 1;
+}
 
 message Test {
-  uint64 my_int = 1;
+  uint64 int = 1;
+
   oneof either {
-    string my_string = 2;
-    bytes my_bytes = 3;
+    string string = 2;
+    bytes bytes = 3;
   }
+
+  Enum enum = 4;
 }

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package fixtures.nested;
+
+import "core.proto";
+
+message Test {
+  uint64 int = 1;
+  oneof oneof {
+    string string = 2;
+    bytes bytes = 3;
+    fixtures.core.Test nested_test = 4;
+  }
+  optional string opts = 5;
+  // map<uint32, uint32> mapping = 6;
+  // map<uint32, uint32> mapping2 = 7;
+  string field = 8;
+}
