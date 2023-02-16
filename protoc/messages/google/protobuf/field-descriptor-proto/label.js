@@ -7,18 +7,18 @@ const strings = new Map([
   [3, 'LABEL_REPEATED']
 ])
 
-export function encode(value, buf, byteOffset) {
+export function encode (value, buf, byteOffset) {
   return int32.encode(value, buf, byteOffset)
 }
 
-export function encodingLength() {
+export function encodingLength () {
   return 1
 }
 
-export function decode(buf, byteOffset = 0, byteLength = buf.byteLength) {
+export function decode (buf, byteOffset = 0, byteLength = buf.byteLength) {
   return decodeInt32(buf)
 }
 
-export function string(int) {
+export function string (int) {
   return strings.get(int)
 }

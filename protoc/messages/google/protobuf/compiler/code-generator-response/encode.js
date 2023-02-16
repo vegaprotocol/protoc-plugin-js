@@ -1,8 +1,8 @@
-import * as t from "protobuf-codec/encode/wire-types.js"
-import Writer from "protobuf-codec/encode/writer.js"
+import * as t from 'protobuf-codec/encode/wire-types.js'
+import Writer from 'protobuf-codec/encode/writer.js'
 import * as File from './file.js'
 
-export function encode({ error, supportedFeatures, file }) {
+export function encode ({ error, supportedFeatures, file }) {
   const writer = new Writer()
 
   if (error) writer.bytes(1, error, t.string)

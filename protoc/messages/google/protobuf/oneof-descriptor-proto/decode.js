@@ -1,7 +1,7 @@
 import * as types from 'protobuf-codec/decode/types.js'
 import reader from 'protobuf-codec/decode/reader.js'
 
-export function decode(
+export function decode (
   buf,
   byteOffset = 0,
   byteLength = buf.byteLength

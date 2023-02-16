@@ -3,7 +3,7 @@ import reader from 'protobuf-codec/decode/reader.js'
 import { decode as Type } from './type.js'
 import { decode as Label } from './label.js'
 
-export function decode(
+export function decode (
   buf,
   byteOffset = 0,
   byteLength = buf.byteLength

@@ -4,7 +4,7 @@ import { decode as EnumDescriptorProto } from '../enum-descriptor-proto/decode.j
 import { decode as FieldDescriptorProto } from '../field-descriptor-proto/decode.js'
 import { decode as OneofDescriptorProto } from '../oneof-descriptor-proto/decode.js'
 import { decode as MessageOptions } from '../message-options/decode.js'
-export function decode(
+export function decode (
   buf,
   byteOffset = 0,
   byteLength = buf.byteLength
