@@ -2,7 +2,7 @@
 import concat from '../utils/concat.js'
 import { decode as CodeGeneratorRequest } from './messages/google/protobuf/compiler/code-generator-request.js'
 import * as CodeGeneratorResponse from './messages/google/protobuf/compiler/code-generator-response.js'
-import util from 'util'
+import jsonish from './passes/json.js'
 import remap from './passes/remap.js'
 import codegen from './passes/codegen.js'
 import recursive from './passes/recursive.js'
@@ -16,24 +16,30 @@ concat(process.stdin, (err, buf) => {
 
   const req = CodeGeneratorRequest(buf)
 
+  const treeStruct = recursive(remap(req.protoFile))
+
   const res = CodeGeneratorResponse.encode({
     supportedFeatures: 1,
     file: [
       {
-        name: 'messages.json', content: JSON.stringify(req, (key, value) => {
-          if (ArrayBuffer.isView(value) || Buffer.isBuffer(value) || value?.type == 'Buffer') return { type: 'Unknown' }
-          return value
-        }, 2)
+        name: 'messages.json', content: jsonish(treeStruct)
       },
-      ...codegen(recursive(remap(req.protoFile)))
+      ...codegen(treeStruct)
         .flat()
-        .map(f => ({
-          name: f.name,
-          content: prettier.format(
-            f.content,
-            { semi: false, parser: f.type === 'javascript' ? 'babel' : 'typescript' }
-          )
-        }))
+        .map(f => {
+          return {
+            name: f.name,
+            content: prettier.format(
+              f.content,
+              {
+                semi: false,
+                singleQuote: true,
+                trailingComma: 'none',
+                parser: f.type === 'javascript' ? 'babel' : 'typescript'
+              }
+            )
+          }
+        })
     ]
   })
 

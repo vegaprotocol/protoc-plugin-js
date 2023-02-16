@@ -1,4 +1,4 @@
-export default function recurse(files) {
+export default function recurse (files) {
   return files.reduce((pkg, file) => {
     let toplevel = pkg.get('')
     if (file.packageName) {
@@ -16,6 +16,6 @@ export default function recurse(files) {
   }, new Map([['', makeNamespace('')]]))
 }
 
-function makeNamespace(name) {
+function makeNamespace (name) {
   return { name, packages: new Map(), enums: [], messages: [] }
 }

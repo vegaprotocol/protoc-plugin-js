@@ -2,7 +2,6 @@ import join from '../../../utils/join.js'
 import { union, quote } from '../../../utils/d-ts.js'
 
 export default function ({ name, values }) {
-
   const eV = values.map(v => v.value)
   const eN = values.map(v => v.name)
 

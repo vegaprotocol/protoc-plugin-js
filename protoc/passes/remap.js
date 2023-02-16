@@ -38,12 +38,12 @@ function file ({
     packageName,
     syntax,
     dependencies: dependency,
-    messages: messageType.map(fmessageType),
-    enums: enumType.map(fenumType)
+    messages: messageType.map(fmessageType.bind(null, '.' + packageName)),
+    enums: enumType.map(fenumType.bind(null, '.' + packageName))
   }
 }
 
-function fmessageType ({
+function fmessageType (packageName, {
   name,
   field,
   extension,
@@ -70,12 +70,15 @@ function fmessageType ({
     map = !!options.mapEntry
   }
 
+  const fullName = packageName + '.' + name
+
   return normaliseProto3Optional({
     name,
+    fullName,
     map,
     oneofs: oneofDecl.map(oneofType),
-    enums: enumType.map(fenumType),
-    messages: nestedType.map(fmessageType),
+    enums: enumType.map(fenumType.bind(null, fullName)),
+    messages: nestedType.map(fmessageType.bind(null, fullName)),
     fields: field.map(fieldType)
   })
 }
@@ -121,7 +124,7 @@ function fieldType ({
     optional: proto3Optional ?? false,
     typeName,
     messageType,
-    oneofIndex: oneofIndex
+    oneofIndex
   }
 }
 
@@ -135,7 +138,7 @@ function fieldType ({
  * This does not impact wire-level encoding, but is purely a API level
  * construct which impacts how the field is represented
  */
-function normaliseProto3Optional(msg) {
+function normaliseProto3Optional (msg) {
   // To make things easier, let's treat oneofs as a set
   const oneofs = new Set(msg.oneofs)
 
@@ -204,7 +207,7 @@ function typeToString (number) {
   }
 }
 
-function typeToWireType(type) {
+function typeToWireType (type) {
   switch (type) {
     case 'bool':
     case 'enumerable':
@@ -214,7 +217,6 @@ function typeToWireType(type) {
     case 'uint64':
     case 'int64':
     case 'sint64': return 'varint'
-
 
     case 'sfixed64':
     case 'fixed64':
@@ -230,11 +232,12 @@ function typeToWireType(type) {
   }
 }
 
-function fenumType ({ name, value, options, reservedRange, reservedName }) {
+function fenumType (packageName, { name, value, options, reservedRange, reservedName }) {
   assert(options == null, 'EnumDescriptor.options unsupported')
 
   return {
     name,
+    fullName: packageName + '.' + name,
     values: value.map(enumValue)
   }
 }
