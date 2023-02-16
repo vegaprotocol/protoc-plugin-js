@@ -1,2 +1,4 @@
 test/build
+test/conformance
+test/buf
 node_modules
