@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 mkdir -p "$SCRIPT_DIR/build"
 protoc \
   --plugin=protoc-gen-js="$SCRIPT_DIR/../protoc/bin.js" \
   --js_out="$SCRIPT_DIR/./build" \
   -I "$SCRIPT_DIR/fixtures" \
-  extended.proto
+  core.proto enum.proto nested.proto recursive.proto shadow.proto
