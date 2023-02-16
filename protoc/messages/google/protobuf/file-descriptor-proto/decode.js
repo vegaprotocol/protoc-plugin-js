@@ -3,7 +3,7 @@ import reader from 'protobuf-codec/decode/reader.js'
 import { decode as DescriptorProto } from '../descriptor-proto/decode.js'
 import { decode as EnumDescriptorProto } from '../enum-descriptor-proto/decode.js'
 
-export function decode(
+export function decode (
   buf,
   byteOffset = 0,
   byteLength = buf.byteLength

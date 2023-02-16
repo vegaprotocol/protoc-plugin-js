@@ -1,8 +1,8 @@
-import * as t from "protobuf-codec/encode/wire-types.js"
-import Writer from "protobuf-codec/encode/writer.js"
-import assert from "nanoassert"
+import * as t from 'protobuf-codec/encode/wire-types.js'
+import Writer from 'protobuf-codec/encode/writer.js'
+import assert from 'nanoassert'
 
-export function encode({ name, content, insertionPoint, generatedCodeInfo }) {
+export function encode ({ name, content, insertionPoint, generatedCodeInfo }) {
   assert(insertionPoint == null, 'insertionPoint unsupported')
   assert(generatedCodeInfo == null, 'generatedCodeInfo unsupported')
 

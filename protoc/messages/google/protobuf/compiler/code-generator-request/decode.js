@@ -3,7 +3,7 @@ import reader from 'protobuf-codec/decode/reader.js'
 import { decode as Version } from '../version.js'
 import { decode as FileDescriptorProto } from '../../file-descriptor-proto/decode.js'
 
-export function decode(
+export function decode (
   buf,
   byteOffset = 0,
   byteLength = buf.byteLength
@@ -15,10 +15,10 @@ export function decode(
 
   for (const [field, { data }] of reader(buf, byteOffset, byteLength)) {
     switch (field) {
-      case 1: fileToGenerate.push(types.string(data));  break
+      case 1: fileToGenerate.push(types.string(data)); break
       case 2: parameter = types.string(data); break
       case 15: protoFile.push(FileDescriptorProto(data)); break
-      case 3: compilerVersion = Version(data);  break
+      case 3: compilerVersion = Version(data); break
     }
   }
 
