@@ -43,10 +43,17 @@ export default function ({ name, values }) {
       if (typeof value === 'string') return encodingLength(parse(value))
       assert(value != null, 'Invalid ${name} value (' + value + ')')
 
-      if (value >= ${enumMinValue} && value <= ${enumMaxValue}) return ${enumMaxBytes}
+      ${enumMaxBytes === ENUM_ENCODING_MAX_BYTES
+? `
+        // This enum may fully consume the max allowed size
+        return ${ENUM_ENCODING_MAX_BYTES}
+      `
+: join`
+        if (${enumMinValue} <= value && value <= ${enumMaxValue}) return ${enumMaxBytes}
 
-      // enumerable max value in case of unknown value
-      return ${ENUM_ENCODING_MAX_BYTES}
+        // enumerable max value in case of unknown value
+        return ${ENUM_ENCODING_MAX_BYTES}
+      `}
     }
 
     /**

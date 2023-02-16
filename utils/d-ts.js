@@ -3,6 +3,6 @@ export function union (...args) {
   return args.flat().join('|')
 }
 
-export function quote(str) {
+export function quote (str) {
   return `'${str}'`
 }
