@@ -124,6 +124,7 @@ function fieldType ({
     optional: proto3Optional ?? false,
     typeName,
     messageType,
+    messageTypeLocal: null, // used for localise alias to avoid name collisions
     oneofIndex
   }
 }
