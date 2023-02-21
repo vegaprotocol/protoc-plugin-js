@@ -20,6 +20,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - uses: arduino/setup-protoc@v1
+      - uses: Noelware/setup-protoc@1.0.2
+      - run: protoc --version
       - run: npm install
       - run: npm test

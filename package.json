@@ -10,7 +10,7 @@
     "test": "test"
   },
   "scripts": {
-    "pretest": "./test/protoc-fixtures",
+    "pretest": "./test/protoc-fixtures && ls test/build",
     "test": "true",
     "posttest": "npm run test-types",
     "test-types": "tsc --noEmit --lib es2020 test/type-tests/**.ts"
