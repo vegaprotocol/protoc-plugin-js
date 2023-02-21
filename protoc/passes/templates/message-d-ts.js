@@ -123,6 +123,8 @@ function uniqueify (message) {
       candidateName = parts.pop() + '_' + candidateName
     }
     usedNames.set(candidateName, field.typeName)
-    field.messageTypeLocal = candidateName
+    if (candidateName !== field.messageType) {
+      field.messageTypeLocal = candidateName
+    }
   }
 }
