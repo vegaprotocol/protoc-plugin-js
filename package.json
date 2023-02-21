@@ -10,9 +10,10 @@
     "test": "test"
   },
   "scripts": {
+    "pretest": "./test/protoc-fixtures",
     "test": "true",
     "posttest": "npm run test-types",
-    "test-types": "tsc --noEmit test/type-tests/**.ts"
+    "test-types": "tsc --noEmit --lib es2020 test/type-tests/**.ts"
   },
   "author": "Emil Bay <emil@vega.xyz>",
   "license": "MIT",
