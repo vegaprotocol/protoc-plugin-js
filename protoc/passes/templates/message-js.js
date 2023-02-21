@@ -7,11 +7,11 @@ export default function ({ path, message, encodeFile, decodeFile, nestedEnums, n
     export * from './${relative(path, encodeFile.path)}'
     export * from './${relative(path, decodeFile.path)}'
     ${nestedEnums.map(n =>
-      `export * as ${n.identifier} from '${relative(path, n.path)}'`
+      `export * as ${n.identifier} from './${relative(path, n.path)}'`
     )}
 
     ${nestedMessages.map(n =>
-      `export * as ${n.identifier} from '${relative(path, n.path)}'`
+      `export * as ${n.identifier} from './${relative(path, n.path)}'`
     )}
   `
 }
