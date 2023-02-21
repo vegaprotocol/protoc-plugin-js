@@ -5,9 +5,9 @@ export default function (root) {
   }, 2)
 }
 
-export function re (k, pkg) {
+export function walk (k, pkg) {
   return {
-    packages: Object.fromEntries(Array.from(pkg.packages.entries(), ([k, v]) => [k, re(k, v)])),
+    packages: Object.fromEntries(Array.from(pkg.packages.entries(), ([k, v]) => [k, walk(k, v)])),
     messages: pkg.messages,
     enums: pkg.enums
   }
