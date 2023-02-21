@@ -9,9 +9,9 @@ message Shadow {
   int32 encode = 4;
   int32 decode = 5;
 
-  map<string, Nested> map = 6;
+  map<string, NestedMessage> map = 6;
 }
 
-message Nested {
+message NestedMessage {
   string msg = 1;
 }
