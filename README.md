@@ -52,6 +52,8 @@ can be set as `{ pick: { before: 2000 } }` or `{ pick: { after: 2000 } }`.
 * `bytes` and `string` are defined in the spec to be at most 2GB, however that is not validated currently
 * `uint64`, `int64`, `uint32` and `int32` can be both encoded as `varint` and `fixed{32,64}`. This library encodes them as `varint` currently
 * While not entirely clear in the spec, `varint` will encode up to 64 bits, even if the format could encode arbitrary size numbers
+* `optional` values and unused `oneof`s are decoded as `null` to distinguish
+them from `undefined` fields, as "explicit presence"
 
 ### Decoding
 
