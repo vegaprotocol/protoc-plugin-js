@@ -13,6 +13,10 @@ export default function ({ name, values }) {
     export type Values = ${union(eV)}
     export type Names = ${union(eN.map(quote))}
 
+    export const enum ${name} {
+      ${values.map(v => `${v.name} = ${v.value}`).join(',')}
+    }
+
     declare const enumValues: Map<Names, Values>
     declare const enumNames: Map<Values, Names>
 
