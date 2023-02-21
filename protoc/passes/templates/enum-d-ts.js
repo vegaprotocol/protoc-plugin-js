@@ -13,8 +13,8 @@ export default function ({ name, values }) {
     export type Values = ${union(eV)}
     export type Names = ${union(eN.map(quote))}
 
-    const enumValues: Map<Names, Values>
-    const enumNames: Map<Values, Names>
+    declare const enumValues: Map<Names, Values>
+    declare const enumNames: Map<Values, Names>
 
     export function encode(value: Values | Names, buf: Uint8Array, byteOffset: number): Uint8Array
 

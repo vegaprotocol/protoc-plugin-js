@@ -2,9 +2,6 @@
 
 import assert from 'nanoassert'
 import * as path from 'path'
-import { enumerable } from 'protobuf-codec/encode/wire-types'
-import j from '../../utils/join.js'
-import { importCodecs, importTypes } from './helpers.js'
 
 import { JS_EXTENSION, DTS_EXTENSION } from './constants.js'
 
@@ -57,9 +54,11 @@ function packageFile (root, {
     type: 'type-definition',
     content: packageDTs({
       path: root,
-      packages: nestedPackages.map(filterFileType('type-definition')),
-      enums: nestedEnums.map(filterFileType('type-definition')),
-      messages: nestedMessages.map(filterFileType('type-definition'))
+      // This is correct, we need to import the .js files and tsc will
+      // resolve to the .d.ts files
+      packages: nestedPackages.map(filterFileType('javascript')),
+      enums: nestedEnums.map(filterFileType('javascript')),
+      messages: nestedMessages.map(filterFileType('javascript'))
     })
   }
 
@@ -102,10 +101,10 @@ function messageFile (root, message) {
     content: messageDTs({
       path: root,
       message,
-      encodeFile: filterFileType('type-definition')(encodeFiles),
-      decodeFile: filterFileType('type-definition')(decodeFiles),
-      nestedEnums: nestedEnums.map(filterFileType('type-definition')),
-      nestedMessages: nestedMessages.map(filterFileType('type-definition')),
+      encodeFile: filterFileType('javascript')(encodeFiles),
+      decodeFile: filterFileType('javascript')(decodeFiles),
+      nestedEnums: nestedEnums.map(filterFileType('javascript')),
+      nestedMessages: nestedMessages.map(filterFileType('javascript')),
     })
   }]
 
