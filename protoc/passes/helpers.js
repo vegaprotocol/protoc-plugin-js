@@ -70,7 +70,7 @@ export function importTypes (from, message) {
 
     const importedIdentifier = field.messageTypeLocal == null ? field.messageType : `${field.messageType} as ${field.messageTypeLocal}`
 
-    imports.add(`import { ${importedIdentifier} } from './${importPath}'`)
+    imports.add(`import type { ${importedIdentifier} } from './${importPath}'`)
   }
 
   return [
