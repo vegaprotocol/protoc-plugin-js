@@ -11,12 +11,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js 18.x
+      - name: Use Node.js lts
         uses: actions/setup-node@v3
         with:
           node-version: 'lts/*'
           registry-url: 'https://registry.npmjs.org'
-      - uses: arduino/setup-protoc@v1
+      - uses: Noelware/setup-protoc@1.0.2
       - run: npm install
       - run: npm test
       - run: npm publish
