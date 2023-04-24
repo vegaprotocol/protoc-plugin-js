@@ -1,6 +1,6 @@
 {
   "name": "protoc-plugin-js",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "description": "`protoc` plugin generating minimal JS codecs with typings and a focus on small bundle size",
   "type": "module",
   "bin": {
