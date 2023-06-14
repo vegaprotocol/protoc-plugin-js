@@ -45,6 +45,8 @@ message Example {
 
 can be set as `{ pick: { before: 2000 } }` or `{ pick: { after: 2000 } }`.
 `{ pick: {} }` will encode to nothing, as none of the fields in the `oneof` are given.
+As a fallback for how most golang proto-to-JSON marshallers work, you can also give `after: 2000`
+for the encoding direction, however the encoder will always prefer the more specific `.pick.after`.
 
 #### Types
 

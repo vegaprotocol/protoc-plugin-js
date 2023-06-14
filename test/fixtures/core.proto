@@ -11,8 +11,8 @@ message Test {
   uint64 int = 1;
 
   oneof either {
-    string string = 2;
-    bytes bytes = 3;
+    bytes bytes = 2;
+    string string = 3;
   }
 
   Enum enum = 4;
