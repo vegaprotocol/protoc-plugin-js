@@ -44,11 +44,11 @@ export default function ({ name, values }) {
       assert(value != null, 'Invalid ${name} value (' + value + ')')
 
       ${enumMaxBytes === ENUM_ENCODING_MAX_BYTES
-? `
+      ? `
         // This enum may fully consume the max allowed size
         return ${ENUM_ENCODING_MAX_BYTES}
       `
-: join`
+      : join`
         if (${enumMinValue} <= value && value <= ${enumMaxValue}) return ${enumMaxBytes}
 
         // enumerable max value in case of unknown value

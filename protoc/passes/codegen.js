@@ -91,7 +91,7 @@ function messageFile (root, message) {
       encodeFile: filterFileType('javascript')(encodeFiles),
       decodeFile: filterFileType('javascript')(decodeFiles),
       nestedEnums: nestedEnums.map(filterFileType('javascript')),
-      nestedMessages: nestedMessages.map(filterFileType('javascript')),
+      nestedMessages: nestedMessages.map(filterFileType('javascript'))
     })
   },
   {
@@ -104,7 +104,7 @@ function messageFile (root, message) {
       encodeFile: filterFileType('javascript')(encodeFiles),
       decodeFile: filterFileType('javascript')(decodeFiles),
       nestedEnums: nestedEnums.map(filterFileType('javascript')),
-      nestedMessages: nestedMessages.map(filterFileType('javascript')),
+      nestedMessages: nestedMessages.map(filterFileType('javascript'))
     })
   }]
 

@@ -7,7 +7,7 @@ test('test', async (assert) => {
 
     string: 'one',
     bytes: new Uint8Array([1, 2, 3]),
-    either: { string: 'two' },
+    either: { string: 'two' }
   }))
 
   assert.is(preferNested.int, 1n)
@@ -17,7 +17,7 @@ test('test', async (assert) => {
   const fallbackFlat = fixtures.core.Test.decode(fixtures.core.Test.encode({
     int: 1,
     string: 'one',
-    bytes: new Uint8Array([1, 2, 3]),
+    bytes: new Uint8Array([1, 2, 3])
   }))
 
   assert.is(fallbackFlat.int, 1n)
