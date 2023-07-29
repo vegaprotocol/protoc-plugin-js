@@ -16,12 +16,13 @@ protoc \
 
 Each package, namespace, message and enum is split into separate files to help
 tree-shaking and minimise the final bundle size, if the user imports only the
-messages needed.
+messages needed. Generated files are CommonJS, as that's the only format thats
+both compabitle with CommonJS and ESM consumers.
 
 All field names are transformed into their "JSON" form by `protoc`,
 eg. `my_field` in protobuf will be `myField` in JS.
 
-Currently merging is not supported.
+Currently merging of field is not supported.
 
 ### Encoding
 

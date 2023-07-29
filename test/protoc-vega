@@ -6,3 +6,6 @@ protoc \
   --js_out="$SCRIPT_DIR/./build" \
   -I "$SCRIPT_DIR/../../vega/protos/sources" \
   vega/commands/v1/transaction.proto
+
+# Top-level module is ESM but compiled files are CommonJS
+echo '{"type":"commonjs"}' > "$SCRIPT_DIR/build/package.json"

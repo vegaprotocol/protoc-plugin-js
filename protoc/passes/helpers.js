@@ -22,6 +22,37 @@ export function groupOneofs (message) {
   return groups
 }
 
+export function requireCodecs (from, direction, message) {
+  const imports = new Set()
+
+  const primitiveTypes = new Set()
+
+  for (const field of message.fields) {
+    if (field.typeName == null) {
+      primitiveTypes.add(field.type)
+      continue
+    }
+
+    // prevent circular import
+    if (field.typeName === message.fullName) continue
+
+    // typeName is eg `vega.commands.v1.OracleSubmission`,
+    // which we turn into `./vega/commands/v1/OracleSubmission`
+    // enumerables we combine encoding and decoding in a single file, while
+    // messages are split into a decode and encode part
+    const typePath = '.' + field.typeName.replace(/\./g, '/') + (field.type === 'enumerable' ? '' : '/' + direction) + JS_EXTENSION
+
+    const importPath = path.relative(from, typePath)
+
+    imports.add(`const ${field.typeName.replace(/\./g, '_')} = require('./${importPath}')`)
+  }
+
+  return [
+    primitiveTypes.size > 0 ? `const {${[...primitiveTypes].join(', ')}} = require('protobuf-codec/${direction}/types')` : '',
+    ...imports
+  ]
+}
+
 export function importCodecs (from, direction, message) {
   const imports = new Set()
 

@@ -7,3 +7,6 @@ protoc \
   --js_out="$SCRIPT_DIR/./build" \
   -I "$SCRIPT_DIR/fixtures" \
   core.proto enum.proto nested.proto recursive.proto shadow.proto
+
+# Top-level module is ESM but compiled files are CommonJS
+echo '{"type":"commonjs"}' > "$SCRIPT_DIR/build/package.json"
