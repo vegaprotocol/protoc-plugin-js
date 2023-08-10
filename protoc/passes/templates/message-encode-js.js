@@ -1,6 +1,6 @@
 import join from '../../../utils/join.js'
 
-import { requireCodecs, groupOneofs } from '../helpers.js'
+import { requireCodecs, groupOneofs, safeTypename } from '../helpers.js'
 
 export default function ({ root, message }) {
   return join`
@@ -48,17 +48,18 @@ export default function ({ root, message }) {
       res.push(join`
         ${fields.map(field => {
         const accessor = isOneof ? `(obj.${key}?.${field.name} ?? obj.${field.name})` : `obj.${field.name}`
-        const codec = field.typeName?.replace(/\./g, '_') ?? field.type
+        const codec = safeTypename(field) ?? field.type
         const isMessage = field.type === 'message'
         const isRepeated = field.repeated === true
+        const isSelfRecursive = field.typeName === message.fullName
         const elementAccessor = isRepeated ? 'v' : accessor
 
         const writerMethod = `writer.${field.wireType}`
         const writerArgs = [
           field.number,
           isMessage
-            ? field.typeName !== message.fullName
-              ? field.typeName.replace(/\./g, '_') + `.encode(${elementAccessor})`
+            ? !isSelfRecursive
+              ? safeTypename(field) + `.encode(${elementAccessor})`
               : `encode(${elementAccessor})`
             : elementAccessor
         ]

@@ -1,5 +1,5 @@
 import join from '../../../utils/join.js'
-import { requireCodecs } from '../helpers.js'
+import { requireCodecs, safeTypename } from '../helpers.js'
 
 export default function ({ root, message }) {
   const fieldAssignments = new Map()
@@ -65,11 +65,15 @@ export default function ({ root, message }) {
     for (const f of message.fields) {
       const isOneof = f.oneofIndex != null
       const isNestedMessage = f.messageType != null
+      const isSelfRecursive = f.typeName == message.fullName
 
       // For primitive data types the API is eg `string(data)` while nested messages
       // have eg `NestedMessage.decode(data)`
-
-      const decoder = (isNestedMessage ? f.typeName !== message.fullName ? f.typeName?.replace(/\./g, '_') + '.decode' : 'decode' : f.type) + '(data)'
+      const decoder = (() => {
+        if (isSelfRecursive) return 'decode(data)'
+        if (isNestedMessage) return safeTypename(f) + '.decode(data)'
+        return f.type + '(data)'
+      })()
 
       // For oneofs we have multiple fields sharing the same variable (slot)
       const slot = fieldAssignments.get(isOneof ? message.oneofs[f.oneofIndex] : f.name)
@@ -122,7 +126,10 @@ function defaultValue (f) {
   // Implied no presence
   switch (f.type) {
     case 'bool': return 'false'
-    case 'enumerable': return '0'
+    case 'enumerable':
+      // Special case; we want to decode the default case to its string value
+      // if one exists
+      return safeTypename(f) + '.decode(0)'
     case 'uint32': return '0'
     case 'int32': return '0'
     case 'sint32': return '0'

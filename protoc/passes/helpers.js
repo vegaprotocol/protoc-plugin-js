@@ -22,6 +22,14 @@ export function groupOneofs (message) {
   return groups
 }
 
+/**
+ * Transform dot-separated protobuf type names to JS safe identifiers.
+ * Logic is simple, but made into a function to make purpose clear
+ */
+export function safeTypename (field) {
+  return field.typeName?.replace(/\./g, '_')
+}
+
 export function requireCodecs (from, direction, message) {
   const imports = new Set()
 
@@ -44,7 +52,7 @@ export function requireCodecs (from, direction, message) {
 
     const importPath = path.relative(from, typePath)
 
-    imports.add(`const ${field.typeName.replace(/\./g, '_')} = require('./${importPath}')`)
+    imports.add(`const ${safeTypename(field)} = require('./${importPath}')`)
   }
 
   return [
@@ -75,7 +83,7 @@ export function importCodecs (from, direction, message) {
 
     const importPath = path.relative(from, typePath)
 
-    imports.add(`import * as ${field.typeName.replace(/\./g, '_')} from './${importPath}'`)
+    imports.add(`import * as ${safeTypename(field)} from './${importPath}'`)
   }
 
   return [
