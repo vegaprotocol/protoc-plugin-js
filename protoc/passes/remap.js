@@ -237,8 +237,8 @@ function typeToWireType (type) {
   }
 }
 
-function fenumType (packageName, { name, value, options, reservedRange, reservedName }) {
-  assert(options == null, 'EnumDescriptor.options unsupported')
+function fenumType(packageName, { name, value, options, reservedRange, reservedName }) {
+  if (options != null) console.warn(`Enum "${name}" contains options, which are unsupported`)
 
   return {
     name,
@@ -247,7 +247,7 @@ function fenumType (packageName, { name, value, options, reservedRange, reserved
   }
 }
 
-function enumValue ({ name, number, options }) {
-  assert(options == null, 'EnumValueDescriptor.options unsupported')
+function enumValue({ name, number, options }) {
+  if (options != null) console.warn(`EnumValue "${name}" = ${number} contains options, which are unsupported`)
   return { name, value: number }
 }
