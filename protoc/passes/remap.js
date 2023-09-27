@@ -85,7 +85,11 @@ function fmessageType (packageName, {
 
 function oneofType ({ name, options }) {
   assert(options == null, 'OneofDescriptor.options unsupported')
-  return name
+
+  // Transform inner underscores to camelCase
+  return name.replace(/(?!^)_(.)/g, function(_, char) {
+    return char.toUpperCase()
+  })
 }
 
 function fieldType ({
