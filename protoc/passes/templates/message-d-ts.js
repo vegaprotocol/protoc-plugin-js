@@ -17,12 +17,12 @@ export default function ({ path, message, encodeFile, decodeFile, nestedEnums, n
     export * from './${relative(path, encodeFile.path)}'
     export * from './${relative(path, decodeFile.path)}'
     ${nestedEnums.map(n =>
-      `export * as ${n.identifier} from './${relative(path, n.path)}'`
-    )}
+    `export * as ${n.identifier} from './${relative(path, n.path)}'`
+  )}
 
     ${nestedMessages.map(n =>
-      `export * as ${n.identifier} from './${relative(path, n.path)}'`
-    )}
+    `export * as ${n.identifier} from './${relative(path, n.path)}'`
+  )}
 
     export type ${message.name} = {
       ${typeFields(message)}
@@ -34,7 +34,7 @@ function typeFields (message) {
   const fieldGroups = group(message)
 
   const res = []
-  for (const [name, field] of fieldGroups) {
+  for (const [, field] of fieldGroups) {
     if (field.oneof === true) {
       res.push(kv(field.name, field.fields.map(f => br(kv(f.name, fieldType(f)))).concat('null').join('|')))
     } else {

@@ -2,7 +2,7 @@ import path from 'path'
 import { JS_EXTENSION } from './constants.js'
 
 export function groupOneofs (message) {
-  if (message.oneofs.length == 0) return new Map([['', message.fields]])
+  if (message.oneofs.length === 0) return new Map([['', message.fields]])
 
   const groups = new Map()
   groups.set('', [])

@@ -87,7 +87,7 @@ function oneofType ({ name, options }) {
   assert(options == null, 'OneofDescriptor.options unsupported')
 
   // Transform inner underscores to camelCase
-  return name.replace(/(?!^)_(.)/g, function(_, char) {
+  return name.replace(/(?!^)_(.)/g, function (_, char) {
     return char.toUpperCase()
   })
 }
@@ -237,7 +237,7 @@ function typeToWireType (type) {
   }
 }
 
-function fenumType(packageName, { name, value, options, reservedRange, reservedName }) {
+function fenumType (packageName, { name, value, options, reservedRange, reservedName }) {
   if (options != null) console.warn(`Enum "${name}" contains options, which are unsupported`)
 
   return {
@@ -247,7 +247,7 @@ function fenumType(packageName, { name, value, options, reservedRange, reservedN
   }
 }
 
-function enumValue({ name, number, options }) {
+function enumValue ({ name, number, options }) {
   if (options != null) console.warn(`EnumValue "${name}" = ${number} contains options, which are unsupported`)
   return { name, value: number }
 }

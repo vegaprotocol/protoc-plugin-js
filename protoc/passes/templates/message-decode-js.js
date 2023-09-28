@@ -65,7 +65,7 @@ export default function ({ root, message }) {
     for (const f of message.fields) {
       const isOneof = f.oneofIndex != null
       const isNestedMessage = f.messageType != null
-      const isSelfRecursive = f.typeName == message.fullName
+      const isSelfRecursive = f.typeName === message.fullName
 
       // For primitive data types the API is eg `string(data)` while nested messages
       // have eg `NestedMessage.decode(data)`

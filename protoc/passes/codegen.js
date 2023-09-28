@@ -1,6 +1,5 @@
 /* eslint-disable camelcase */
 
-import assert from 'nanoassert'
 import * as path from 'path'
 
 import { JS_EXTENSION, DTS_EXTENSION } from './constants.js'
