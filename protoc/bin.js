@@ -18,30 +18,34 @@ concat(process.stdin, (err, buf) => {
 
   const treeStruct = recursive(remap(req.protoFile))
 
-  const res = CodeGeneratorResponse.encode({
-    supportedFeatures: 1,
-    file: [
-      {
-        name: 'messages.json', content: jsonish(treeStruct)
-      },
-      ...codegen(treeStruct)
-        .flat()
-        .map(f => {
-          return {
-            name: f.name,
-            content: prettier.format(
-              f.content,
-              {
-                semi: false,
-                singleQuote: true,
-                trailingComma: 'none',
-                parser: f.type === 'javascript' ? 'babel' : 'typescript'
-              }
-            )
-          }
-        })
-    ]
-  })
-
-  process.stdout.end(res)
+  Promise.all(codegen(treeStruct).flat().map(formatFile))
+    .then(files => {
+      process.stdout.end(CodeGeneratorResponse.encode({
+        supportedFeatures: 1,
+        file: [
+          {
+            name: 'messages.json', content: jsonish(treeStruct)
+          },
+          ...files
+        ]
+      }))
+    }, err => {
+      console.error(err)
+      process.exit(1)
+    })
 })
+
+async function formatFile ({ name, content, type }) {
+  return {
+    name,
+    content: await prettier.format(
+      content,
+      {
+        semi: false,
+        singleQuote: true,
+        trailingComma: 'none',
+        parser: type === 'javascript' ? 'babel' : 'typescript'
+      }
+    )
+  }
+}
