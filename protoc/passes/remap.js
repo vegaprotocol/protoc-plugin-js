@@ -106,8 +106,8 @@ function fieldType ({
   proto3Optional
 }) {
   assert(extendee == null, 'FieldDescriptor.extendee unsupported')
-  assert(options == null, 'FieldDescriptor.options unsupported')
   assert(defaultValue == null, 'FieldDecleration.defaultValue unsupported')
+  if (options != null) console.warn(`FieldDescriptor "${name}" = ${number} contains options, which are unsupported`);
 
   const Repeated = labelToString(label) === 'REPEATED'
   const Type = typeToString(type)
